@@ -1,0 +1,23 @@
+# Core
+numpy
+pandas
+scikit-learn
+scipy
+pyyaml
+tqdm
+
+# DL
+torch>=2.0
+
+# Plotting / analysis
+matplotlib
+seaborn
+
+# LLM / RAG (Day 11-13, optional path)
+sentence-transformers
+faiss-cpu
+gradio
+
+# Dev
+pytest
+jupyter

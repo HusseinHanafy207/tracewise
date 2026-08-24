@@ -1,0 +1,51 @@
+seed: 42
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  dataset_name: "assistments09"   # skill-builder 2009-2010
+  min_interactions_per_student: 10
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+
+bkt:
+  # per-skill parameters; fit is a coarse grid search (see src/models/bkt.py)
+  init_p_know: 0.4
+  init_p_learn: 0.2
+  init_p_guess: 0.25
+  init_p_slip: 0.1
+
+dkt:
+  embedding_dim: 128
+  hidden_dim: 128
+  num_layers: 1
+  dropout: 0.2
+  batch_size: 64
+  max_seq_len: 200
+  lr: 0.001
+  epochs: 20
+  early_stopping_patience: 3
+
+policy:
+  actions: ["explain", "worked_example", "socratic_hint", "easier_problem", "harder_problem", "prerequisite_review"]
+  rule_thresholds:
+    low_mastery: 0.4
+    high_mastery: 0.7
+  bandit:
+    type: "epsilon_greedy"   # or "linucb"
+    epsilon: 0.1
+    context_dim: 8            # mastery, recent_acc, difficulty, attempts, improvement, ...
+
+simulator:
+  n_students: 500
+  n_interactions_per_student: 50
+
+llm:
+  provider: "anthropic"        # placeholder — fill in during Day 11-12
+  model: "claude-sonnet-4-6"
+  languages: ["en", "ar"]
+
+paths:
+  results_dir: "results"
+  checkpoints_dir: "results/checkpoints"

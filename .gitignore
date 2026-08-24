@@ -1,0 +1,36 @@
+# Data
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Results / checkpoints
+results/*
+!results/.gitkeep
+*.pt
+*.pth
+*.ckpt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Env / secrets
+.env
+.env.*
+*.key
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
