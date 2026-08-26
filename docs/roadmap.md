@@ -8,8 +8,8 @@ end-to-end demo. Everything else is optional.
 |---|---|---|---|
 | 1–2 | Dataset + preprocessing | `src/data/preprocess.py`, `scripts/run_preprocessing.py`, `notebooks/kaggle_kt_experiments.ipynb` | done (3119 students, 123 skills, 454232 interactions) |
 | 3 | BKT implementation | `src/models/bkt.py`, `scripts/fit_bkt.py` | done on val (see experiment log) |
-| 4–6 | DKT implementation | `src/models/dkt.py`, `scripts/train_dkt.py`, `scripts/eval_kt.py` | code ready (val AUC + early stop); not yet trained on Kaggle |
-| 7 | BKT vs DKT evaluation | `src/evaluation/metrics.py`, `scripts/eval_kt.py` | script ready; needs `dkt_best.pt` |
+| 4–6 | DKT implementation | `src/models/dkt.py`, `scripts/train_dkt.py`, `scripts/eval_kt.py` | done on Kaggle (best val AUC 0.8386 @ epoch 11) |
+| 7 | BKT vs DKT evaluation | `src/evaluation/metrics.py`, `scripts/eval_kt.py`, `scripts/analyze_kt.py` | headline table done; slice/calibration script ready, not yet run |
 | 8–9 | Rule-based policy + contextual bandit | `src/policy/rule_based.py`, `src/policy/bandit.py`, `src/policy/random_policy.py` | implemented, not compared |
 | 10 | Student simulator + offline comparison | `src/policy/simulator.py` | implemented, not run |
 | 11–12 | LLM + RAG integration | `src/llm/tutor.py` | prompt stub only |
@@ -38,3 +38,5 @@ documentation on Day 14.
 |---|---|---|---|---|
 | 2026-08-26 | (push M2 before Kaggle re-run) | preprocess | `configs/config.yaml` | train/val/test students 2183/467/469; 123 skills; 454232 interactions; 0 split overlap |
 | 2026-08-26 | (Kaggle confirmed) | BKT val | `configs/config.yaml` | ROC-AUC **0.7652**, acc 0.7479, n=56559; 114/123 skills fitted, 9 defaulted; 79s Kaggle CPU (129s local) |
+| 2026-08-26 | (Kaggle) | DKT val | `configs/config.yaml` | best val AUC **0.8386** @ epoch 11; early stop epoch 14; 179,579 params; 12s T4 |
+| 2026-08-26 | (Kaggle) | BKT vs DKT | `configs/config.yaml` | aligned next-step: val DKT 0.8386 vs BKT 0.7473; test DKT **0.8531** vs BKT 0.7598 (n=33319/33829). BKT_full val 0.7652 / test 0.7418 |

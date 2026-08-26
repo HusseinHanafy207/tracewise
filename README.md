@@ -45,13 +45,13 @@ Student interaction sequences
 ## Project status
 
 Tracking against the 14-day plan. See `docs/roadmap.md`.
-Code for Days 1–10 is scaffolded. M1 preprocessing and M2 BKT val metrics are done.
-M3+ have not been trained/evaluated yet.
+Code for Days 1–10 is scaffolded. M1–M3 are done: BKT val AUC 0.7652, DKT val AUC 0.8386 / test 0.8531.
+M5+ (policy, LLM) have not been run yet.
 
 - [x] Day 1–2: Dataset + preprocessing
 - [x] Day 3: BKT (val ROC-AUC 0.7652)
-- [ ] Day 4–6: DKT
-- [ ] Day 7: BKT vs DKT evaluation
+- [x] Day 4–6: DKT (val ROC-AUC 0.8386 @ epoch 11)
+- [ ] Day 7: BKT vs DKT evaluation (headline table done; slices/calibration pending)
 - [ ] Day 8–9: Rule-based policy + contextual bandit
 - [ ] Day 10: Student simulator + offline policy comparison
 - [ ] Day 11–12: LLM + RAG integration

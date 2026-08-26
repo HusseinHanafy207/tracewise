@@ -38,6 +38,43 @@ def evaluate(y_true: List[List[int]], y_pred: List[List[float]]) -> dict:
     return evaluate_arrays(flat_true, flat_pred)
 
 
+def expected_calibration_error(
+    y_true: np.ndarray, y_pred: np.ndarray, n_bins: int = 10
+) -> Tuple[float, List[dict]]:
+    """ECE with equal-width bins on [0, 1]. Also returns per-bin reliability stats."""
+    y_true = np.asarray(y_true).astype(float)
+    y_pred = np.clip(np.asarray(y_pred).astype(float), 0.0, 1.0)
+    edges = np.linspace(0.0, 1.0, n_bins + 1)
+    ece = 0.0
+    bins = []
+    n = len(y_true)
+    for i in range(n_bins):
+        lo, hi = edges[i], edges[i + 1]
+        if i == n_bins - 1:
+            mask = (y_pred >= lo) & (y_pred <= hi)
+        else:
+            mask = (y_pred >= lo) & (y_pred < hi)
+        count = int(mask.sum())
+        if count == 0:
+            bins.append(
+                {"lo": float(lo), "hi": float(hi), "n": 0, "acc": None, "conf": None}
+            )
+            continue
+        acc = float(y_true[mask].mean())
+        conf = float(y_pred[mask].mean())
+        ece += (count / n) * abs(acc - conf)
+        bins.append(
+            {"lo": float(lo), "hi": float(hi), "n": count, "acc": acc, "conf": conf}
+        )
+    return float(ece), bins
+
+
+def brier_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    y_true = np.asarray(y_true).astype(float)
+    y_pred = np.asarray(y_pred).astype(float)
+    return float(np.mean((y_pred - y_true) ** 2))
+
+
 def compare_models(results: dict) -> str:
     """results: {"BKT": {...}, "DKT": {...}} -> markdown table string."""
     header = "| Model | ROC-AUC | Accuracy | N predictions |\n|---|---|---|---|\n"
