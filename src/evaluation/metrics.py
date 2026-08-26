@@ -20,18 +20,22 @@ def flatten_predictions(
     return np.array(flat_true), np.array(flat_pred)
 
 
+def evaluate_arrays(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+    y_true = np.asarray(y_true).astype(int)
+    y_pred = np.asarray(y_pred).astype(float)
+    binary_pred = (y_pred >= 0.5).astype(int)
+    auc = roc_auc_score(y_true, y_pred) if len(np.unique(y_true)) > 1 else float("nan")
+    acc = accuracy_score(y_true, binary_pred)
+    return {
+        "roc_auc": float(auc),
+        "accuracy": float(acc),
+        "n_predictions": int(len(y_true)),
+    }
+
+
 def evaluate(y_true: List[List[int]], y_pred: List[List[float]]) -> dict:
     flat_true, flat_pred = flatten_predictions(y_true, y_pred)
-    binary_pred = (flat_pred >= 0.5).astype(int)
-
-    auc = roc_auc_score(flat_true, flat_pred) if len(set(flat_true)) > 1 else float("nan")
-    acc = accuracy_score(flat_true, binary_pred)
-
-    return {
-        "roc_auc": auc,
-        "accuracy": acc,
-        "n_predictions": len(flat_true),
-    }
+    return evaluate_arrays(flat_true, flat_pred)
 
 
 def compare_models(results: dict) -> str:

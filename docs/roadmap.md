@@ -8,8 +8,8 @@ end-to-end demo. Everything else is optional.
 |---|---|---|---|
 | 1–2 | Dataset + preprocessing | `src/data/preprocess.py`, `scripts/run_preprocessing.py`, `notebooks/kaggle_kt_experiments.ipynb` | done (3119 students, 123 skills, 454232 interactions) |
 | 3 | BKT implementation | `src/models/bkt.py`, `scripts/fit_bkt.py` | done on val (see experiment log) |
-| 4–6 | DKT implementation | `src/models/dkt.py`, `src/data/dataset.py`, `scripts/train_dkt.py` | implemented, not trained |
-| 7 | BKT vs DKT evaluation | `src/evaluation/metrics.py` | metrics helper ready, no results yet |
+| 4–6 | DKT implementation | `src/models/dkt.py`, `scripts/train_dkt.py`, `scripts/eval_kt.py` | code ready (val AUC + early stop); not yet trained on Kaggle |
+| 7 | BKT vs DKT evaluation | `src/evaluation/metrics.py`, `scripts/eval_kt.py` | script ready; needs `dkt_best.pt` |
 | 8–9 | Rule-based policy + contextual bandit | `src/policy/rule_based.py`, `src/policy/bandit.py`, `src/policy/random_policy.py` | implemented, not compared |
 | 10 | Student simulator + offline comparison | `src/policy/simulator.py` | implemented, not run |
 | 11–12 | LLM + RAG integration | `src/llm/tutor.py` | prompt stub only |
@@ -37,4 +37,4 @@ documentation on Day 14.
 | Date | Commit | Experiment | Config | Result |
 |---|---|---|---|---|
 | 2026-08-26 | (push M2 before Kaggle re-run) | preprocess | `configs/config.yaml` | train/val/test students 2183/467/469; 123 skills; 454232 interactions; 0 split overlap |
-| 2026-08-26 | (push M2 before Kaggle re-run) | BKT val | `configs/config.yaml` | ROC-AUC **0.7652**, acc 0.7479, n=56559; 114/123 skills fitted, 9 defaulted; 129s CPU |
+| 2026-08-26 | (Kaggle confirmed) | BKT val | `configs/config.yaml` | ROC-AUC **0.7652**, acc 0.7479, n=56559; 114/123 skills fitted, 9 defaulted; 79s Kaggle CPU (129s local) |
