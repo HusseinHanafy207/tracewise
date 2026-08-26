@@ -4,8 +4,10 @@ Usage:
     python scripts/fit_bkt.py --config configs/config.yaml
 """
 import argparse
+import json
 import pickle
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -31,8 +33,27 @@ def main(config_path: str):
         skill_to_idx = pickle.load(f)
     num_skills = len(skill_to_idx)
 
+    bkt_cfg = cfg.get("bkt", {})
+    min_students = int(bkt_cfg.get("min_students_per_skill", 5))
+    min_obs = int(bkt_cfg.get("min_obs_per_skill", 20))
+
+    print(
+        f"Fitting BKT on {len(train_seqs)} train students, {num_skills} skills "
+        f"(min_students={min_students}, min_obs={min_obs})"
+    )
     model = BKTModel()
-    model.fit(train_seqs, num_skills=num_skills)
+    t0 = time.time()
+    model.fit(
+        train_seqs,
+        num_skills=num_skills,
+        min_students=min_students,
+        min_obs=min_obs,
+    )
+    fit_s = time.time() - t0
+    print(
+        f"fit {fit_s:.1f}s | skills fitted={model.n_fitted} | "
+        f"defaulted (too few obs)={model.n_defaulted}"
+    )
 
     y_true, y_pred = [], []
     for seq in val_seqs:
@@ -52,6 +73,28 @@ def main(config_path: str):
     with open(ckpt_dir / "bkt.pkl", "wb") as f:
         pickle.dump(model, f)
     print(f"Saved {ckpt_dir / 'bkt.pkl'}")
+
+    results_dir = Path(cfg["paths"]["results_dir"])
+    results_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "split": "val",
+        "roc_auc": metrics["roc_auc"],
+        "accuracy": metrics["accuracy"],
+        "n_predictions": metrics["n_predictions"],
+        "n_train_students": len(train_seqs),
+        "n_val_students": len(val_seqs),
+        "num_skills": num_skills,
+        "n_fitted": model.n_fitted,
+        "n_defaulted": model.n_defaulted,
+        "fit_seconds": round(fit_s, 2),
+        "min_students_per_skill": min_students,
+        "min_obs_per_skill": min_obs,
+        "seed": cfg["seed"],
+    }
+    out_json = results_dir / "bkt_val.json"
+    with open(out_json, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+    print(f"Wrote {out_json}")
 
 
 if __name__ == "__main__":

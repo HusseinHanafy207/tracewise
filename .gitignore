@@ -3,6 +3,8 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+skill_builder_data.csv
+skill_builder_data/
 
 # Results / checkpoints
 results/*

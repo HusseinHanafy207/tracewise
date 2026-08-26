@@ -15,6 +15,8 @@ bkt:
   init_p_learn: 0.2
   init_p_guess: 0.25
   init_p_slip: 0.1
+  min_students_per_skill: 5
+  min_obs_per_skill: 20
 
 dkt:
   embedding_dim: 128

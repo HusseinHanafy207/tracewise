@@ -45,10 +45,11 @@ Student interaction sequences
 ## Project status
 
 Tracking against the 14-day plan. See `docs/roadmap.md`.
-Code for Days 1–10 is scaffolded; nothing has been trained or evaluated yet.
+Code for Days 1–10 is scaffolded. M1 preprocessing and M2 BKT val metrics are done.
+M3+ have not been trained/evaluated yet.
 
-- [ ] Day 1–2: Dataset + preprocessing (Kaggle notebook ready; CSV not yet run)
-- [ ] Day 3: BKT
+- [x] Day 1–2: Dataset + preprocessing
+- [x] Day 3: BKT (val ROC-AUC 0.7652)
 - [ ] Day 4–6: DKT
 - [ ] Day 7: BKT vs DKT evaluation
 - [ ] Day 8–9: Rule-based policy + contextual bandit

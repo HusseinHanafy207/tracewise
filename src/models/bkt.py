@@ -17,14 +17,13 @@ Then apply learning transition before the next observation:
 
     P(known_{t+1}) = P(known_t | o_t) + (1 - P(known_t | o_t)) * p_learn
 
-Parameters are fit per-skill via a simple EM/grid-search hybrid: since
-BKT has only 4 parameters per skill, coordinate-wise grid search over a
-coarse grid + refinement is stable and easy to reason about (full EM is
-implementable too, but the grid approach is simpler to debug and still a
-legitimate baseline for a hackathon/portfolio project).
+Parameters are fit per-skill by coarse grid search (4 parameters, so a
+small grid is enough). Likelihood is evaluated with a NumPy batch over
+students x grid points — same math as the per-sequence Python loop, but
+tractable on ASSISTments (~100 skills).
 """
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -37,7 +36,15 @@ class BKTParams:
     p_slip: float = 0.1
 
 
-def bkt_forward(observations: List[int], params: BKTParams) -> List[float]:
+DEFAULT_GRID = {
+    "p_init": np.linspace(0.1, 0.9, 5),
+    "p_learn": np.linspace(0.05, 0.5, 5),
+    "p_guess": np.linspace(0.1, 0.4, 4),
+    "p_slip": np.linspace(0.05, 0.3, 4),
+}
+
+
+def bkt_forward(observations: Sequence[int], params: BKTParams) -> List[float]:
     """Run the BKT forward pass for one student on one skill.
 
     Returns P(known) *before* each observation is seen (i.e. the
@@ -66,7 +73,7 @@ def bkt_forward(observations: List[int], params: BKTParams) -> List[float]:
     return predictions
 
 
-def predicted_correct_prob(observations: List[int], params: BKTParams) -> List[float]:
+def predicted_correct_prob(observations: Sequence[int], params: BKTParams) -> List[float]:
     """P(correct_t) = P(known_t) * (1-slip) + P(unknown_t) * guess."""
     p_knowns = bkt_forward(observations, params)
     return [
@@ -74,7 +81,7 @@ def predicted_correct_prob(observations: List[int], params: BKTParams) -> List[f
     ]
 
 
-def _neg_log_likelihood(observations: List[int], params: BKTParams) -> float:
+def _neg_log_likelihood(observations: Sequence[int], params: BKTParams) -> float:
     probs = predicted_correct_prob(observations, params)
     eps = 1e-6
     nll = 0.0
@@ -84,9 +91,71 @@ def _neg_log_likelihood(observations: List[int], params: BKTParams) -> float:
     return nll
 
 
+def _pad_observations(sequences: List[List[int]]) -> Tuple[np.ndarray, np.ndarray]:
+    """Pad per-student 0/1 sequences to (n_students, max_len)."""
+    n = len(sequences)
+    lengths = [len(s) for s in sequences]
+    t_max = max(lengths) if lengths else 0
+    obs = np.zeros((n, t_max), dtype=np.int8)
+    mask = np.zeros((n, t_max), dtype=bool)
+    for i, seq in enumerate(sequences):
+        if not seq:
+            continue
+        obs[i, : len(seq)] = np.asarray(seq, dtype=np.int8)
+        mask[i, : len(seq)] = True
+    return obs, mask
+
+
+def _valid_combos(grid: Dict[str, np.ndarray]) -> np.ndarray:
+    """(C, 4) array of (p_init, p_learn, p_guess, p_slip) with guess+slip < 1."""
+    rows = []
+    for p_init in grid["p_init"]:
+        for p_learn in grid["p_learn"]:
+            for p_guess in grid["p_guess"]:
+                for p_slip in grid["p_slip"]:
+                    if p_guess + p_slip >= 1.0:
+                        continue
+                    rows.append((float(p_init), float(p_learn), float(p_guess), float(p_slip)))
+    return np.asarray(rows, dtype=np.float64)
+
+
+def _batch_nll(obs: np.ndarray, mask: np.ndarray, combos: np.ndarray) -> np.ndarray:
+    """NLL for every grid point. obs/mask: (n, T); combos: (C, 4). Returns (C,)."""
+    n_students, t_max = obs.shape
+    n_combos = combos.shape[0]
+    p_init, p_learn, p_guess, p_slip = (combos[:, 0], combos[:, 1], combos[:, 2], combos[:, 3])
+
+    p_known = np.repeat(p_init[:, None], n_students, axis=1)  # (C, n)
+    nll = np.zeros(n_combos, dtype=np.float64)
+    eps = 1e-6
+    p_slip_c = p_slip[:, None]
+    p_guess_c = p_guess[:, None]
+    p_learn_c = p_learn[:, None]
+
+    for t in range(t_max):
+        valid = mask[:, t]
+        if not np.any(valid):
+            continue
+        o_t = obs[:, t].astype(np.float64)
+        p_emit_correct = p_known * (1.0 - p_slip_c) + (1.0 - p_known) * p_guess_c
+        p_obs = np.where(o_t[None, :] == 1.0, p_emit_correct, 1.0 - p_emit_correct)
+        p_obs_clip = np.clip(p_obs, eps, 1.0 - eps)
+        nll -= np.sum(np.log(p_obs_clip) * valid[None, :], axis=1)
+
+        num = np.where(
+            o_t[None, :] == 1.0,
+            p_known * (1.0 - p_slip_c),
+            p_known * p_slip_c,
+        )
+        p_post = np.divide(num, p_obs, out=np.copy(p_known), where=p_obs > 0)
+        p_known = p_post + (1.0 - p_post) * p_learn_c
+
+    return nll
+
+
 def fit_skill_bkt(
     student_observations: List[List[int]],
-    grid: Dict[str, np.ndarray] = None,
+    grid: Optional[Dict[str, np.ndarray]] = None,
 ) -> BKTParams:
     """Fit BKT params for a single skill via coarse grid search over all
     students' observation sequences for that skill, minimizing total NLL.
@@ -94,33 +163,18 @@ def fit_skill_bkt(
     `student_observations` is a list of sequences (one per student) of
     0/1 correctness for this skill only.
     """
+    seqs = [s for s in student_observations if len(s) > 0]
+    if not seqs:
+        return BKTParams()
+
     if grid is None:
-        grid = {
-            "p_init": np.linspace(0.1, 0.9, 5),
-            "p_learn": np.linspace(0.05, 0.5, 5),
-            "p_guess": np.linspace(0.1, 0.4, 4),
-            "p_slip": np.linspace(0.05, 0.3, 4),
-        }
+        grid = DEFAULT_GRID
 
-    best_params = BKTParams()
-    best_nll = float("inf")
-
-    for p_init in grid["p_init"]:
-        for p_learn in grid["p_learn"]:
-            for p_guess in grid["p_guess"]:
-                for p_slip in grid["p_slip"]:
-                    # Standard BKT identifiability constraint.
-                    if p_guess + p_slip >= 1.0:
-                        continue
-                    params = BKTParams(p_init, p_learn, p_guess, p_slip)
-                    total_nll = sum(
-                        _neg_log_likelihood(obs, params) for obs in student_observations
-                    )
-                    if total_nll < best_nll:
-                        best_nll = total_nll
-                        best_params = params
-
-    return best_params
+    combos = _valid_combos(grid)
+    obs, mask = _pad_observations(seqs)
+    nll = _batch_nll(obs, mask, combos)
+    best = combos[int(np.argmin(nll))]
+    return BKTParams(p_init=best[0], p_learn=best[1], p_guess=best[2], p_slip=best[3])
 
 
 class BKTModel:
@@ -128,8 +182,16 @@ class BKTModel:
 
     def __init__(self):
         self.skill_params: Dict[int, BKTParams] = {}
+        self.n_fitted: int = 0
+        self.n_defaulted: int = 0
 
-    def fit(self, sequences, num_skills: int) -> None:
+    def fit(
+        self,
+        sequences,
+        num_skills: int,
+        min_students: int = 5,
+        min_obs: int = 20,
+    ) -> None:
         by_skill: Dict[int, List[List[int]]] = {k: [] for k in range(num_skills)}
         for seq in sequences:
             per_skill_obs: Dict[int, List[int]] = {}
@@ -138,11 +200,17 @@ class BKTModel:
             for skill, obs in per_skill_obs.items():
                 by_skill[skill].append(obs)
 
-        for skill, seqs in by_skill.items():
-            if len(seqs) == 0:
+        self.n_fitted = 0
+        self.n_defaulted = 0
+        for skill in range(num_skills):
+            seqs = by_skill[skill]
+            n_obs = sum(len(s) for s in seqs)
+            if len(seqs) < min_students or n_obs < min_obs:
                 self.skill_params[skill] = BKTParams()
+                self.n_defaulted += 1
                 continue
             self.skill_params[skill] = fit_skill_bkt(seqs)
+            self.n_fitted += 1
 
     def predict_sequence(self, skill_ids: List[int], correct: List[int]) -> List[float]:
         """Predict P(correct_t) at each step, per-skill state tracked independently."""
