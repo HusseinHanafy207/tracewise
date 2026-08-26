@@ -10,7 +10,8 @@ The dataset is hosted by the ASSISTments team / mirrored on Kaggle:
 - Primary: https://sites.google.com/site/assistmentsdata/home/assistment-2009-2010-data
 - Kaggle mirror (search "ASSISTments 2009 skill builder") — easiest path if
   working in a Kaggle notebook: use "Add Data" and search for it, no manual
-  download needed.
+  download needed. The notebook `notebooks/kaggle_kt_experiments.ipynb` copies
+  the attached file to `data/raw/skill_builder_data.csv`.
 
 Expected raw file: `skill_builder_data.csv` (or `skill_builder_data_corrected.csv`).
 Place it at `data/raw/skill_builder_data.csv`.

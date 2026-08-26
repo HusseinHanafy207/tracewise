@@ -47,7 +47,7 @@ Student interaction sequences
 Tracking against the 14-day plan. See `docs/roadmap.md`.
 Code for Days 1–10 is scaffolded; nothing has been trained or evaluated yet.
 
-- [ ] Day 1–2: Dataset + preprocessing
+- [ ] Day 1–2: Dataset + preprocessing (Kaggle notebook ready; CSV not yet run)
 - [ ] Day 3: BKT
 - [ ] Day 4–6: DKT
 - [ ] Day 7: BKT vs DKT evaluation
@@ -100,12 +100,13 @@ python scripts/train_dkt.py --config configs/config.yaml
 
 Kaggle notebook (where actual BKT/DKT training happens, T4 x2):
 
-1. Push this repo to GitHub.
-2. In a Kaggle notebook: `!git clone https://github.com/<you>/tracewise.git`
-3. `import sys; sys.path.append("tracewise")`
-4. `from src.models.dkt import DKT` etc.
-5. Attach the ASSISTments dataset via Kaggle's "Add Data", or download per
-   `data/README.md` / `src/data/download.py`.
+Use [`notebooks/kaggle_kt_experiments.ipynb`](notebooks/kaggle_kt_experiments.ipynb).
+
+1. Upload that notebook to Kaggle (File → Import).
+2. Settings → GPU on, Internet **ON**.
+3. **Add Data** → search ASSISTments 2009 skill-builder.
+4. Run All. First run only preprocesses (`RUN_BKT` / `RUN_DKT` stay `False`).
+5. The notebook clones `https://github.com/HusseinHanafy207/tracewise.git` into `/kaggle/working/tracewise`.
 
 ## Dataset
 

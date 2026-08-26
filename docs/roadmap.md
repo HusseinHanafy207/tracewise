@@ -6,7 +6,7 @@ end-to-end demo. Everything else is optional.
 
 | Day | Goal | Module(s) | Status |
 |---|---|---|---|
-| 1–2 | Dataset + preprocessing | `src/data/preprocess.py`, `scripts/run_preprocessing.py` | code ready, not run (need CSV) |
+| 1–2 | Dataset + preprocessing | `src/data/preprocess.py`, `scripts/run_preprocessing.py`, `notebooks/kaggle_kt_experiments.ipynb` | Kaggle notebook ready; not yet run on ASSISTments |
 | 3 | BKT implementation | `src/models/bkt.py`, `scripts/fit_bkt.py` | implemented, not evaluated |
 | 4–6 | DKT implementation | `src/models/dkt.py`, `src/data/dataset.py`, `scripts/train_dkt.py` | implemented, not trained |
 | 7 | BKT vs DKT evaluation | `src/evaluation/metrics.py` | metrics helper ready, no results yet |
