@@ -85,7 +85,8 @@ tracewise/
 
 ## Setup
 
-From the `tracewise/` directory:
+The reproducible core environment targets Python 3.10.11. From the
+`tracewise/` directory:
 
 ```powershell
 python -m venv .venv
@@ -102,6 +103,17 @@ python scripts/run_preprocessing.py --config configs/config.yaml
 python scripts/fit_bkt.py --config configs/config.yaml
 python scripts/train_dkt.py --config configs/config.yaml
 ```
+
+For development or CI without the optional LLM/RAG packages:
+
+```powershell
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+The test suite uses small synthetic fixtures; it does not require the private
+ASSISTments CSV or saved model checkpoints. Run only the end-to-end policy
+smoke checks with `python -m pytest tests/test_smoke.py`.
 
 Kaggle notebook (where actual BKT/DKT training happens, T4 x2):
 
@@ -123,6 +135,9 @@ instructions and the exact columns we use.
 - Fixed seeds via `src/utils/seed.py`.
 - All experiment configs live in `configs/`, not hardcoded in notebooks.
 - Every result reported in `docs/` should be traceable to a config + git commit.
+- Twelve deterministic unit/smoke tests cover data splitting, KT models,
+  policy updates, hidden-state boundaries, and short end-to-end simulations.
+- GitHub Actions runs the core test environment on every push and pull request.
 - Artifact fingerprints, checkpoint lineage, and the two distinct DKT runs are
   recorded in [`docs/artifacts.md`](docs/artifacts.md).
 - Generated data/results remain gitignored. Rebuild them with the commands in

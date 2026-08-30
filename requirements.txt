@@ -1,17 +1,5 @@
-# Core
-numpy
-pandas
-scikit-learn
-scipy
-pyyaml
-tqdm
-
-# DL
-torch>=2.0
-
-# Plotting / analysis
-matplotlib
-seaborn
+# Pinned ML/RL environment
+-r requirements-core.txt
 
 # LLM / RAG (Day 11-13, optional path)
 sentence-transformers
@@ -19,5 +7,5 @@ faiss-cpu
 gradio
 
 # Dev
-pytest
+pytest==9.1.1
 jupyter
