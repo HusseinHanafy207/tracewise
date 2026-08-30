@@ -37,11 +37,15 @@ policy:
   bandit:
     type: "epsilon_greedy"   # or "linucb"
     epsilon: 0.1
+    alpha: 1.0                # LinUCB exploration coefficient
     context_dim: 8            # mastery, recent_acc, difficulty, attempts, improvement, ...
 
 simulator:
   n_students: 500
   n_interactions_per_student: 50
+  n_seeds: 5                  # independent simulated populations for mean±std
+  heterogeneous: false        # if true: latent learner types z_i (hidden from policy)
+  delayed_effects: false      # M6: Independence/Fatigue latents (hidden from policy)
 
 llm:
   provider: "anthropic"        # placeholder — fill in during Day 11-12

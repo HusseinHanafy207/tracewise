@@ -45,15 +45,16 @@ Student interaction sequences
 ## Project status
 
 Tracking against the 14-day plan. See `docs/roadmap.md`.
-Code for Days 1–10 is scaffolded. M1–M3 are done: BKT val AUC 0.7652, DKT val AUC 0.8386 / test 0.8531.
-M5+ (policy, LLM) have not been run yet.
+Code for Days 1–10.5 is scaffolded. M1–M5.5 (KT + simulated adaptive policy
+with estimated state) are done. M6+ (LLM) have not been run yet.
 
 - [x] Day 1–2: Dataset + preprocessing
 - [x] Day 3: BKT (val ROC-AUC 0.7652)
 - [x] Day 4–6: DKT (val ROC-AUC 0.8386 @ epoch 11)
-- [ ] Day 7: BKT vs DKT evaluation (headline table done; slices/calibration pending)
-- [ ] Day 8–9: Rule-based policy + contextual bandit
-- [ ] Day 10: Student simulator + offline policy comparison
+- [x] Day 7: BKT vs DKT evaluation (table + slices + calibration — see `docs/experiments_kt.md`)
+- [x] Day 8–9: Rule-based policy + contextual bandit
+- [x] Day 10: Student simulator + offline policy comparison (see `docs/experiments_policy.md`)
+- [x] Day 10.5: KT-aware policy — oracle vs BKT/DKT estimated state (M5.5)
 - [ ] Day 11–12: LLM + RAG integration
 - [ ] Day 13: Arabic + Gradio interface
 - [ ] Day 14: Evaluation write-up + docs
@@ -69,7 +70,7 @@ tracewise/
 ├── src/
 │   ├── data/            # download + preprocessing + PyTorch Dataset
 │   ├── models/          # bkt.py, dkt.py
-│   ├── policy/          # random, rule_based, bandit, simulator
+│   ├── policy/          # random, rule_based, bandit, simulator, kt_state
 │   ├── llm/             # tutor.py (LLM + RAG glue)
 │   ├── evaluation/       # metrics, comparison scripts
 │   └── utils/            # seeding, config loading, logging
