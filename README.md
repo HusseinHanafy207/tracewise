@@ -57,7 +57,8 @@ implemented.
 - [x] Day 10: Student simulator + offline policy comparison (see `docs/experiments_policy.md`)
 - [x] Day 10.5: KT-aware policy — oracle vs BKT/DKT estimated state (M5.5)
 - [x] M6 Step 1: Delayed-effect calibration (no DQN yet)
-- [ ] M6 Step 2–3: DQN training + held-out policy evaluation
+- [x] M6 Step 2: Episodic RL environment + POMDP/leakage specification
+- [ ] M6 Step 3: DQN training + held-out policy evaluation
 - [ ] Day 11–12: LLM + RAG integration
 - [ ] Day 13: Arabic + Gradio interface
 - [ ] Day 14: Evaluation write-up + docs
@@ -74,6 +75,7 @@ tracewise/
 │   ├── data/            # download + preprocessing + PyTorch Dataset
 │   ├── models/          # bkt.py, dkt.py
 │   ├── policy/          # random, rule_based, bandit, simulator, kt_state
+│   ├── rl/              # episodic POMDP environment; DQN follows in Phase 3
 │   ├── llm/             # tutor.py (LLM + RAG glue)
 │   ├── evaluation/       # metrics, comparison scripts
 │   └── utils/            # seeding, config loading, logging
@@ -135,7 +137,7 @@ instructions and the exact columns we use.
 - Fixed seeds via `src/utils/seed.py`.
 - All experiment configs live in `configs/`, not hardcoded in notebooks.
 - Every result reported in `docs/` should be traceable to a config + git commit.
-- Twelve deterministic unit/smoke tests cover data splitting, KT models,
+- Nineteen deterministic unit/smoke tests cover data splitting, KT models,
   policy updates, hidden-state boundaries, and short end-to-end simulations.
 - GitHub Actions runs the core test environment on every push and pull request.
 - Artifact fingerprints, checkpoint lineage, and the two distinct DKT runs are

@@ -38,6 +38,11 @@ Student Simulator      LLM Tutor (src/llm/tutor.py)
 Reward / outcome → KT tracker update (ŝ), env mastery update
 ```
 
+The sequential RL interface is `src/rl/environment.py`. It wraps the simulator
+as a fixed-horizon POMDP with Gymnasium-style `reset`/`step` returns. See
+`docs/rl_environment.md` for the observation, hidden-state, reward, terminal,
+and leakage contracts that the DQN implementation must follow.
+
 ## Key architectural decision: separation of concerns
 
 The LLM is a **communication layer**, not a **decision-making layer**.

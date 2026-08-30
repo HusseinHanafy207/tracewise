@@ -47,6 +47,15 @@ simulator:
   heterogeneous: false        # if true: latent learner types z_i (hidden from policy)
   delayed_effects: false      # M6: Independence/Fatigue latents (hidden from policy)
 
+rl:
+  horizon: 50
+  num_skills: 123
+  observation_mode: "oracle"  # diagnostic upper bound; estimated is deployable
+  reward: "mastery_gain"      # mastery_(t+1) - mastery_t; no hint/action costs
+  gamma: 0.99                 # Phase 3 must ablate discount sensitivity
+  delayed_effects: true
+  heterogeneous: false
+
 llm:
   provider: "anthropic"        # placeholder — fill in during Day 11-12
   model: "claude-sonnet-4-6"
