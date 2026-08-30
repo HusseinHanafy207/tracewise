@@ -45,8 +45,9 @@ Student interaction sequences
 ## Project status
 
 Tracking against the 14-day plan. See `docs/roadmap.md`.
-Code for Days 1–10.5 is scaffolded. M1–M5.5 (KT + simulated adaptive policy
-with estimated state) are done. M6+ (LLM) have not been run yet.
+The KT and contextual-bandit work through M5.7 is complete. M6 delayed-effect
+calibration is complete; DQN, LLM/RAG, and the user interface are not yet
+implemented.
 
 - [x] Day 1–2: Dataset + preprocessing
 - [x] Day 3: BKT (val ROC-AUC 0.7652)
@@ -55,6 +56,8 @@ with estimated state) are done. M6+ (LLM) have not been run yet.
 - [x] Day 8–9: Rule-based policy + contextual bandit
 - [x] Day 10: Student simulator + offline policy comparison (see `docs/experiments_policy.md`)
 - [x] Day 10.5: KT-aware policy — oracle vs BKT/DKT estimated state (M5.5)
+- [x] M6 Step 1: Delayed-effect calibration (no DQN yet)
+- [ ] M6 Step 2–3: DQN training + held-out policy evaluation
 - [ ] Day 11–12: LLM + RAG integration
 - [ ] Day 13: Arabic + Gradio interface
 - [ ] Day 14: Evaluation write-up + docs
@@ -120,3 +123,7 @@ instructions and the exact columns we use.
 - Fixed seeds via `src/utils/seed.py`.
 - All experiment configs live in `configs/`, not hardcoded in notebooks.
 - Every result reported in `docs/` should be traceable to a config + git commit.
+- Artifact fingerprints, checkpoint lineage, and the two distinct DKT runs are
+  recorded in [`docs/artifacts.md`](docs/artifacts.md).
+- Generated data/results remain gitignored. Rebuild them with the commands in
+  the artifact manifest; obtain the raw dataset using [`data/README.md`](data/README.md).
