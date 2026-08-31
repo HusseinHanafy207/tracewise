@@ -56,8 +56,9 @@ fatigue averaged 0.2775.
 
 The held-out mastery point estimate is slightly above the earlier calibrated
 interleaving policy result (0.558), but these were not yet evaluated as a
-paired, replicated comparison. Phase 4 must perform that comparison before
-claiming that DQN outperforms the heuristic.
+paired, replicated comparison. Phase 4 performs that comparison in
+`docs/experiments_dqn_phase4.md`; its multi-seed result does **not** support a
+robust claim that DQN outperforms the heuristic.
 
 ## Interpretation and limitations
 
@@ -68,7 +69,7 @@ to characterize DQN stability. The result is meaningful as evidence that the
 implementation learns a nontrivial sequential policy, but it is not yet a
 robust algorithm comparison.
 
-Other limitations are deliberate at this stage:
+Other limitations at the Phase 3 cutoff were deliberate:
 
 - the policy receives oracle mastery rather than BKT/DKT-estimated state;
 - simulator dynamics define the result and may reward unrealistic behavior;
@@ -76,6 +77,9 @@ Other limitations are deliberate at this stage:
   reported;
 - the six-action distribution is concentrated on three actions;
 - no Double DQN, recurrent model, or hyperparameter ablation has been run.
+
+Phase 4 addresses the training-seed, observation-state, and discount-factor
+items. Double DQN and recurrent-policy comparisons remain future work.
 
 ## Reproduction
 

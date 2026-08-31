@@ -1,7 +1,8 @@
-"""Train the first oracle-state DQN on the delayed tutoring environment.
+"""Train DQN under oracle, BKT, DKT, or no-state observations.
 
 Training, checkpoint-selection, and held-out episode seeds are disjoint. This
-script trains/evaluates DQN only; the full multi-policy comparison is Phase 4.
+script trains/evaluates one DQN; `eval_dqn_suite.py` performs the Phase 4
+multi-policy comparison.
 """
 from __future__ import annotations
 
@@ -11,8 +12,9 @@ import json
 import subprocess
 import sys
 import time
+from dataclasses import asdict
 from pathlib import Path
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,7 +23,8 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.rl.dqn import DQNAgent, DQNConfig, linear_epsilon
-from src.rl.environment import TutoringEnv, TutoringEnvConfig
+from src.rl.environment import OnlineTracker, TutoringEnv, TutoringEnvConfig
+from src.rl.state_tracking import load_state_tracking
 from src.utils.seed import load_config, set_seed
 
 
@@ -48,24 +51,30 @@ def git_provenance() -> dict:
     return {"head_commit": commit, "working_tree_dirty": dirty}
 
 
-def environment_config(cfg: dict, include_diagnostics: bool) -> TutoringEnvConfig:
+def environment_config(
+    cfg: dict,
+    include_diagnostics: bool,
+    observation_mode: Optional[str] = None,
+) -> TutoringEnvConfig:
     rl_cfg = cfg["rl"]
     return TutoringEnvConfig(
         actions=tuple(cfg["policy"]["actions"]),
         horizon=int(rl_cfg["horizon"]),
         num_skills=int(rl_cfg["num_skills"]),
-        observation_mode=str(rl_cfg["observation_mode"]),
+        observation_mode=str(observation_mode or rl_cfg["observation_mode"]),
         delayed_effects=bool(rl_cfg["delayed_effects"]),
         heterogeneous=bool(rl_cfg["heterogeneous"]),
         include_diagnostics=include_diagnostics,
     )
 
 
-def agent_config(cfg: dict) -> DQNConfig:
+def agent_config(cfg: dict, gamma_override: Optional[float] = None) -> DQNConfig:
     dqn_cfg = cfg["dqn"]
     return DQNConfig(
         hidden_dims=tuple(int(x) for x in dqn_cfg["hidden_dims"]),
-        gamma=float(cfg["rl"]["gamma"]),
+        gamma=float(
+            gamma_override if gamma_override is not None else cfg["rl"]["gamma"]
+        ),
         learning_rate=float(dqn_cfg["learning_rate"]),
         batch_size=int(dqn_cfg["batch_size"]),
         replay_capacity=int(dqn_cfg["replay_capacity"]),
@@ -81,8 +90,13 @@ def evaluate_agent(
     agent: DQNAgent,
     env_config: TutoringEnvConfig,
     episode_seeds: List[int],
+    tracker_factory: Optional[Callable[[], OnlineTracker]] = None,
 ) -> dict:
-    env = TutoringEnv(env_config, seed=episode_seeds[0])
+    env = TutoringEnv(
+        env_config,
+        tracker_factory=tracker_factory,
+        seed=episode_seeds[0],
+    )
     rows = []
     action_counts = {name: 0 for name in env.action_names}
     for seed in episode_seeds:
@@ -161,9 +175,12 @@ def main(
     episodes_override: Optional[int],
     device_name: str,
     tag: Optional[str],
+    seed_override: Optional[int] = None,
+    gamma_override: Optional[float] = None,
+    observation_condition: str = "oracle",
 ) -> None:
     cfg = load_config(config_path)
-    seed = int(cfg["seed"])
+    seed = int(seed_override if seed_override is not None else cfg["seed"])
     set_seed(seed)
     dqn_cfg = cfg["dqn"]
     torch.set_num_threads(int(dqn_cfg.get("torch_num_threads", 1)))
@@ -180,13 +197,31 @@ def main(
     if train_episodes <= 0:
         raise ValueError("train_episodes must be positive")
 
-    train_env_cfg = environment_config(cfg, include_diagnostics=False)
-    eval_env_cfg = environment_config(cfg, include_diagnostics=True)
-    probe_env = TutoringEnv(train_env_cfg, seed=seed)
+    checkpoint_dir = Path(cfg["paths"]["checkpoints_dir"])
+    state_tracking = load_state_tracking(
+        observation_condition,
+        checkpoint_dir,
+        device,
+    )
+    train_env_cfg = environment_config(
+        cfg,
+        include_diagnostics=False,
+        observation_mode=state_tracking.environment_mode,
+    )
+    eval_env_cfg = environment_config(
+        cfg,
+        include_diagnostics=True,
+        observation_mode=state_tracking.environment_mode,
+    )
+    probe_env = TutoringEnv(
+        train_env_cfg,
+        tracker_factory=state_tracking.tracker_factory,
+        seed=seed,
+    )
     agent = DQNAgent(
         probe_env.observation_dim,
         probe_env.n_actions,
-        agent_config(cfg),
+        agent_config(cfg, gamma_override),
         device,
         seed=seed,
     )
@@ -214,24 +249,30 @@ def main(
         raise ValueError("training, validation, and held-out seeds must be disjoint")
 
     results_dir = Path(cfg["paths"]["results_dir"])
-    checkpoint_dir = Path(cfg["paths"]["checkpoints_dir"])
     suffix = f"_{tag}" if tag else ""
-    best_path = checkpoint_dir / f"dqn_oracle_best{suffix}.pt"
-    final_path = checkpoint_dir / f"dqn_oracle_final{suffix}.pt"
-    figure_path = results_dir / "figures" / f"dqn_oracle_training{suffix}.png"
-    result_path = results_dir / f"dqn_oracle_training{suffix}.json"
+    stem = f"dqn_{state_tracking.condition}"
+    best_path = checkpoint_dir / f"{stem}_best{suffix}.pt"
+    final_path = checkpoint_dir / f"{stem}_final{suffix}.pt"
+    figure_path = results_dir / "figures" / f"{stem}_training{suffix}.png"
+    result_path = results_dir / f"{stem}_training{suffix}.json"
 
     print(
-        f"DQN oracle training | device={device} | episodes={train_episodes} | "
+        f"DQN {state_tracking.condition} training | device={device} | "
+        f"seed={seed} | gamma={agent.config.gamma:g} | episodes={train_episodes} | "
         f"obs={probe_env.observation_dim} | actions={probe_env.n_actions}"
     )
     print(
-        "DISCLAIMER: simulated delayed-effect environment; oracle mastery is "
-        "an evaluation upper bound, not deployable state."
+        "DISCLAIMER: simulated delayed-effect environment; oracle mastery is an "
+        "upper bound and estimated-state results are not real-student evidence."
     )
 
     validation_history = []
-    initial_validation = evaluate_agent(agent, eval_env_cfg, validation_seeds)
+    initial_validation = evaluate_agent(
+        agent,
+        eval_env_cfg,
+        validation_seeds,
+        state_tracking.tracker_factory,
+    )
     validation_history.append({"episode": 0, **initial_validation})
     best_mastery = initial_validation["final_mastery"]
     agent.save(
@@ -239,6 +280,8 @@ def main(
         extra={
             "episode": 0,
             "global_step": 0,
+            "seed": seed,
+            "observation_condition": state_tracking.condition,
             "validation": initial_validation,
             "actions": list(probe_env.action_names),
             "observation_names": list(probe_env.observation_names),
@@ -247,7 +290,11 @@ def main(
 
     train_rows = []
     global_step = 0
-    env = TutoringEnv(train_env_cfg, seed=train_seed_start)
+    env = TutoringEnv(
+        train_env_cfg,
+        tracker_factory=state_tracking.tracker_factory,
+        seed=train_seed_start,
+    )
     t0 = time.time()
     validation_interval = int(dqn_cfg["validation_interval"])
     train_frequency = int(dqn_cfg["train_frequency"])
@@ -290,7 +337,12 @@ def main(
 
         should_validate = episode % validation_interval == 0 or episode == train_episodes
         if should_validate:
-            validation = evaluate_agent(agent, eval_env_cfg, validation_seeds)
+            validation = evaluate_agent(
+                agent,
+                eval_env_cfg,
+                validation_seeds,
+                state_tracking.tracker_factory,
+            )
             validation_history.append({"episode": episode, **validation})
             print(
                 f"episode={episode:4d} step={global_step:7d} "
@@ -304,6 +356,8 @@ def main(
                     extra={
                         "episode": episode,
                         "global_step": global_step,
+                        "seed": seed,
+                        "observation_condition": state_tracking.condition,
                         "validation": validation,
                         "actions": list(probe_env.action_names),
                         "observation_names": list(probe_env.observation_names),
@@ -316,28 +370,41 @@ def main(
         extra={
             "episode": train_episodes,
             "global_step": global_step,
+            "seed": seed,
+            "observation_condition": state_tracking.condition,
             "actions": list(probe_env.action_names),
             "observation_names": list(probe_env.observation_names),
         },
     )
     best_agent, best_extra = DQNAgent.load(best_path, device)
-    heldout = evaluate_agent(best_agent, eval_env_cfg, heldout_seeds)
+    heldout = evaluate_agent(
+        best_agent,
+        eval_env_cfg,
+        heldout_seeds,
+        state_tracking.tracker_factory,
+    )
     plot_training(train_rows, validation_history, figure_path)
 
     payload = {
         "disclaimer": (
-            "Simulated oracle-state DQN training. Oracle mastery is not deployable; "
-            "no real-student learning claim."
+            "Simulated DQN training. Oracle mastery is an upper bound; estimated "
+            "states remain simulator evaluations. No real-student learning claim."
         ),
         "device": str(device),
         "seed": seed,
+        "observation_condition": state_tracking.condition,
         "train_episodes": train_episodes,
         "global_steps": global_step,
         "training_seconds": elapsed,
         "observation_names": list(probe_env.observation_names),
         "actions": list(probe_env.action_names),
-        "rl_config": cfg["rl"],
+        "rl_config": {
+            **cfg["rl"],
+            "observation_mode": state_tracking.environment_mode,
+            "gamma": agent.config.gamma,
+        },
         "dqn_config": cfg["dqn"],
+        "effective_agent_config": asdict(agent.config),
         "train_seed_range": [train_seed_start, train_seed_end],
         "validation_seed_range": [validation_seeds[0], validation_seeds[-1]],
         "heldout_seed_range": [heldout_seeds[0], heldout_seeds[-1]],
@@ -354,6 +421,11 @@ def main(
                 "environment": sha256(Path("src/rl/environment.py")),
                 "dqn": sha256(Path("src/rl/dqn.py")),
                 "training_script": sha256(Path(__file__)),
+                **(
+                    {"state_checkpoint": sha256(state_tracking.checkpoint_path)}
+                    if state_tracking.checkpoint_path is not None
+                    else {}
+                ),
             },
         },
     }
@@ -378,5 +450,21 @@ if __name__ == "__main__":
     parser.add_argument("--episodes", type=int, default=None)
     parser.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     parser.add_argument("--tag", default=None)
+    parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--gamma", type=float, default=None)
+    parser.add_argument(
+        "--observation-mode",
+        default="oracle",
+        choices=["oracle", "bkt", "dkt", "no_state"],
+        help="State signal used for both training and evaluation",
+    )
     args = parser.parse_args()
-    main(args.config, args.episodes, args.device, args.tag)
+    main(
+        args.config,
+        args.episodes,
+        args.device,
+        args.tag,
+        seed_override=args.seed,
+        gamma_override=args.gamma,
+        observation_condition=args.observation_mode,
+    )

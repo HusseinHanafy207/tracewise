@@ -25,7 +25,7 @@ Student interaction sequences (src/data/preprocess.py)
 │  - Random (src/policy/random_policy.py) │
 │  - Rule-based (src/policy/rule_based.py) │
 │  - Contextual bandit (src/policy/bandit.py) │
-│  - DQN (src/rl/dqn.py; oracle Phase 3) │
+│  - DQN (src/rl/dqn.py; oracle + estimated-state evaluation) │
 └──────────────┬───────────────┘
                ▼
         Intervention a_t
@@ -42,8 +42,10 @@ Reward / outcome → KT tracker update (ŝ), env mastery update
 The sequential RL interface is `src/rl/environment.py`. It wraps the simulator
 as a fixed-horizon POMDP with Gymnasium-style `reset`/`step` returns. The first
 learned sequential policy is the replay-buffer DQN in `src/rl/dqn.py`, trained
-by `scripts/train_dqn.py`. See `docs/rl_environment.md` for the observation,
-hidden-state, reward, terminal, and leakage contracts it follows.
+by `scripts/train_dqn.py`. Phase 4 loads fresh BKT/DKT online trackers through
+`src/rl/state_tracking.py` and performs paired episode evaluation through
+`src/rl/evaluation.py`. See `docs/rl_environment.md` for the observation,
+hidden-state, reward, terminal, and leakage contracts these components follow.
 
 ## Key architectural decision: separation of concerns
 

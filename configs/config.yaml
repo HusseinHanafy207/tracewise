@@ -52,7 +52,7 @@ rl:
   num_skills: 123
   observation_mode: "oracle"  # diagnostic upper bound; estimated is deployable
   reward: "mastery_gain"      # mastery_(t+1) - mastery_t; no hint/action costs
-  gamma: 0.99                 # Phase 3 must ablate discount sensitivity
+  gamma: 0.99                 # Phase 4 compares against gamma=1.0
   delayed_effects: true
   heterogeneous: false
 
@@ -78,6 +78,13 @@ dqn:
   validation_seed_start: 100000
   heldout_seed_start: 200000
   torch_num_threads: 1
+
+phase4:
+  training_seeds: [42, 43, 44]
+  gamma_ablation: 1.0
+  state_conditions: [oracle, bkt, dkt, no_state]
+  evaluation_episodes: 500
+  bootstrap_resamples: 5000
 
 llm:
   provider: "anthropic"        # placeholder — fill in during Day 11-12

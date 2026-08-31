@@ -46,9 +46,9 @@ Student interaction sequences
 
 Tracking against the 14-day plan. See `docs/roadmap.md`.
 The KT and contextual-bandit work through M5.7 is complete. M6 now includes a
-delayed-effect simulator, its episodic POMDP interface, and a first oracle-state
-DQN with held-out evaluation. LLM/RAG and the user interface are not yet
-implemented.
+delayed-effect simulator, its episodic POMDP interface, DQN training, and a
+paired multi-seed/state/discount evaluation. LLM/RAG and the user interface are
+not yet implemented.
 
 - [x] Day 1–2: Dataset + preprocessing
 - [x] Day 3: BKT (val ROC-AUC 0.7652)
@@ -60,6 +60,7 @@ implemented.
 - [x] M6 Step 1: Delayed-effect calibration (no DQN yet)
 - [x] M6 Step 2: Episodic RL environment + POMDP/leakage specification
 - [x] M6 Step 3: DQN training + held-out policy evaluation (see `docs/experiments_dqn.md`)
+- [x] M6 Step 4: Paired baselines + state/seed/discount ablations (see `docs/experiments_dqn_phase4.md`)
 - [ ] Day 11–12: LLM + RAG integration
 - [ ] Day 13: Arabic + Gradio interface
 - [ ] Day 14: Evaluation write-up + docs
@@ -128,6 +129,11 @@ Checkpoints, the complete JSON trace, and the learning curve are written below
 `results/` and remain gitignored. The durable result summary and limitations are
 in [`docs/experiments_dqn.md`](docs/experiments_dqn.md).
 
+Phase 4 extends that run with controlled training replicates and a paired
+500-episode comparison. After creating the BKT/DKT checkpoints, reproduce it
+with the commands in
+[`docs/experiments_dqn_phase4.md`](docs/experiments_dqn_phase4.md).
+
 Kaggle notebook (where actual BKT/DKT training happens, T4 x2):
 
 Use [`notebooks/kaggle_kt_experiments.ipynb`](notebooks/kaggle_kt_experiments.ipynb).
@@ -148,7 +154,7 @@ instructions and the exact columns we use.
 - Fixed seeds via `src/utils/seed.py`.
 - All experiment configs live in `configs/`, not hardcoded in notebooks.
 - Every result reported in `docs/` should be traceable to a config + git commit.
-- Twenty-five deterministic unit/smoke tests cover data splitting, KT models,
+- Thirty deterministic unit/smoke tests cover data splitting, KT models,
   policy updates, hidden-state boundaries, and short end-to-end simulations.
 - GitHub Actions runs the core test environment on every push and pull request.
 - Artifact fingerprints, checkpoint lineage, and the two distinct DKT runs are

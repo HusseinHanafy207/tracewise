@@ -76,8 +76,8 @@ next observation is built after the transition and tracker update.
 The immediate reward is `r_t = mastery_(t+1) - mastery_t`. There are currently
 no intervention costs or hint penalties. With undiscounted return, rewards
 telescope to `m_H - m_0`, so maximizing return is exactly maximizing final
-mastery. Phase 3 starts with `gamma=0.99`; Phase 4 must include a
-discount-factor ablation because discounting mildly favors earlier gains.
+mastery. Phase 3 starts with `gamma=0.99`; Phase 4 compares it with `gamma=1.0`
+because discounting mildly favors earlier gains.
 
 The episode terminates naturally after 50 interactions. It is not reported as
 a time-limit truncation.

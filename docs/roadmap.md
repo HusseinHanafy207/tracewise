@@ -15,6 +15,7 @@ end-to-end demo. Everything else is optional.
 | 10.5 | KT-aware policy (estimated state) | `src/policy/kt_state.py`, `scripts/eval_kt_policies.py` | done — oracle vs BKT/DKT/no-state; see M5.5 in `docs/experiments_policy.md` |
 | 10.7 | Mastery basis diagnostic | `--suite basis` | done — M5.7 closes bandit section |
 | 11a | M6 delayed I/F + DQN (oracle) | delayed simulator, `src/rl/environment.py`, `src/rl/dqn.py`, `scripts/train_dqn.py` | done — best checkpoint selected on validation; 500-seed held-out evaluation |
+| 11b | M6 DQN controlled evaluation | `src/rl/evaluation.py`, `scripts/eval_dqn_suite.py` | done — paired baselines, 3 training seeds, BKT/DKT/no-state, gamma ablation |
 | 11–12 | LLM + RAG integration | `src/llm/tutor.py` | prompt stub only |
 | 13 | Arabic + Gradio interface | `app.py` (TBD) | not started |
 | 14 | Evaluation write-up + docs | `docs/`, `README.md` | not started |
@@ -59,3 +60,4 @@ regenerated from a clean tagged environment in Phase 1.
 | 2026-08-27 | `b328e47`† | M6 Step 1 delayed I/F calibration | `delayed_effects` | OFF: myopic→m_T=1.0; ON: myopic early-best but interleave wins m_T (0.565 vs 0.522); I/F latent — ready for DQN |
 | 2026-08-30 | Phase 2 worktree; source SHA in result JSON | episodic RL environment validation, 500 paired episodes | `configs/config.yaml -> rl` | all gates pass; delayed OFF myopic 1.000 > interleave 0.831 final mastery; delayed ON interleave 0.558 > myopic 0.518 while myopic wins early reward |
 | 2026-08-31 | Phase 3 worktree; source SHA in result JSON | oracle-state DQN, 2,000 train / 100 validation / 500 held-out episodes | `configs/config.yaml -> rl,dqn` | best at episode 1,800; held-out final mastery **0.5700 +/- 0.1757**, return 0.2728; simulated oracle upper bound only |
+| 2026-08-31 | Phase 4 worktree; source/checkpoint SHA in result JSON | paired DQN evaluation, 500 common episodes; 3 oracle training seeds + state/gamma ablations | `configs/config.yaml -> phase4` | seed-42 DQN beats interleave by +0.0124 [0.0064, 0.0184], but 3-seed mean 0.5550 +/- 0.0208 vs interleave 0.5576; **not a robust DQN win** |
