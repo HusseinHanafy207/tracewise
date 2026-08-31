@@ -26,7 +26,7 @@ POMDP rather than a fully observed MDP.
 
 ### Observation
 
-The agent receives an eight-dimensional vector:
+The agent receives a fourteen-dimensional vector:
 
 1. mastery signal: oracle truth, BKT/DKT estimate, or zero in the ablation
 2. recent accuracy over the last five responses
@@ -36,12 +36,14 @@ The agent receives an eight-dimensional vector:
 6. recent worked-example success rate
 7. consecutive failures divided by five
 8. recent Socratic-hint success rate
+9. six one-hot features identifying the agent's previous intervention
 
 Observation modes are explicit:
 
 - `oracle`: true mastery; diagnostic upper bound only
 - `estimated`: a fresh online BKT/DKT tracker per episode
-- `no_state`: student-state/history features zeroed; difficulty and progress stay
+- `no_state`: student-response features zeroed; difficulty, progress, and the
+  agent's own previous-action one-hot stay
 
 `reset()` and `step()` omit hidden diagnostics by default. Evaluation code may
 set `include_diagnostics=True`, but diagnostic values must never be passed to a
@@ -59,7 +61,7 @@ The action id is the stable index in `configs/config.yaml -> policy.actions`:
 5. prerequisite review
 
 The environment also accepts action names for readable baseline validation.
-DQN will use integer ids.
+DQN uses integer ids.
 
 ### Transition and response
 
@@ -74,8 +76,8 @@ next observation is built after the transition and tracker update.
 The immediate reward is `r_t = mastery_(t+1) - mastery_t`. There are currently
 no intervention costs or hint penalties. With undiscounted return, rewards
 telescope to `m_H - m_0`, so maximizing return is exactly maximizing final
-mastery. Phase 3 starts with `gamma=0.99` and must include a discount-factor
-ablation because discounting mildly favors earlier gains.
+mastery. Phase 3 starts with `gamma=0.99`; Phase 4 must include a
+discount-factor ablation because discounting mildly favors earlier gains.
 
 The episode terminates naturally after 50 interactions. It is not reported as
 a time-limit truncation.

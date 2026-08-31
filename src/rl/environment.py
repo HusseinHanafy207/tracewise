@@ -33,7 +33,7 @@ DEFAULT_ACTIONS: Tuple[str, ...] = (
     "prerequisite_review",
 )
 
-OBSERVATION_NAMES: Tuple[str, ...] = (
+BASE_OBSERVATION_NAMES: Tuple[str, ...] = (
     "mastery_signal",
     "recent_accuracy",
     "base_difficulty",
@@ -42,6 +42,9 @@ OBSERVATION_NAMES: Tuple[str, ...] = (
     "worked_example_success",
     "consecutive_failures",
     "socratic_hint_success",
+)
+OBSERVATION_NAMES: Tuple[str, ...] = BASE_OBSERVATION_NAMES + tuple(
+    f"last_action_{action}" for action in DEFAULT_ACTIONS
 )
 
 
@@ -87,8 +90,6 @@ class TutoringEnvConfig:
 class TutoringEnv:
     """One simulated student per fixed-horizon episode."""
 
-    observation_names = OBSERVATION_NAMES
-
     def __init__(
         self,
         config: TutoringEnvConfig,
@@ -112,6 +113,12 @@ class TutoringEnv:
     @property
     def observation_dim(self) -> int:
         return len(self.observation_names)
+
+    @property
+    def observation_names(self) -> Tuple[str, ...]:
+        return BASE_OBSERVATION_NAMES + tuple(
+            f"last_action_{action}" for action in self.config.actions
+        )
 
     @property
     def n_actions(self) -> int:
@@ -254,7 +261,12 @@ class TutoringEnv:
         else:
             failure_feature = float(min(consecutive_failures, 5)) / 5.0
 
-        return np.asarray(
+        last_action = np.zeros(len(self.config.actions), dtype=np.float32)
+        if self._history:
+            previous_action = self._history[-1][0]
+            last_action[self.config.actions.index(previous_action)] = 1.0
+
+        base_observation = np.asarray(
             [
                 mastery_signal,
                 recent_accuracy,
@@ -267,6 +279,7 @@ class TutoringEnv:
             ],
             dtype=np.float32,
         )
+        return np.concatenate([base_observation, last_action])
 
     def _action_success_rate(self, action: str, window: int = 10) -> float:
         matched = [correct for name, correct in self._history if name == action][-window:]

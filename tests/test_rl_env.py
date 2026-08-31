@@ -97,6 +97,7 @@ def test_no_state_mode_zeros_student_features_but_keeps_task_progress():
     observation, _, _, _, _ = env.step("explain")
     assert np.allclose(observation[[0, 1, 4, 5, 6, 7]], 0.0)
     assert observation[3] == pytest.approx(0.25)
+    assert np.array_equal(observation[8:], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
 
 def test_delayed_effects_reduce_immediate_scaffolding_gain_for_same_episode():
@@ -124,3 +125,21 @@ def test_invalid_configuration_and_actions_fail_loudly():
         env.step(99)
     with pytest.raises(ValueError, match="unknown action"):
         env.step("not_an_action")
+
+
+def test_action_subset_has_matching_observation_metadata():
+    env = TutoringEnv(
+        TutoringEnvConfig(actions=("explain", "harder_problem"), horizon=2),
+        seed=9,
+    )
+    observation, _ = env.reset(seed=9)
+
+    assert observation.shape == (10,)
+    assert env.observation_dim == 10
+    assert env.observation_names[-2:] == (
+        "last_action_explain",
+        "last_action_harder_problem",
+    )
+
+    observation, *_ = env.step(1)
+    assert observation[-2:].tolist() == [0.0, 1.0]

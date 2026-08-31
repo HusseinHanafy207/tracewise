@@ -14,7 +14,7 @@ end-to-end demo. Everything else is optional.
 | 10 | Student simulator + offline comparison | `src/policy/simulator.py`, `scripts/eval_policies.py` | done — see `docs/experiments_policy.md` |
 | 10.5 | KT-aware policy (estimated state) | `src/policy/kt_state.py`, `scripts/eval_kt_policies.py` | done — oracle vs BKT/DKT/no-state; see M5.5 in `docs/experiments_policy.md` |
 | 10.7 | Mastery basis diagnostic | `--suite basis` | done — M5.7 closes bandit section |
-| 11a | M6 delayed I/F + DQN (oracle) | delayed simulator, `src/rl/environment.py`, DQN TBD | calibration + episodic POMDP environment done; DQN not started |
+| 11a | M6 delayed I/F + DQN (oracle) | delayed simulator, `src/rl/environment.py`, `src/rl/dqn.py`, `scripts/train_dqn.py` | done — best checkpoint selected on validation; 500-seed held-out evaluation |
 | 11–12 | LLM + RAG integration | `src/llm/tutor.py` | prompt stub only |
 | 13 | Arabic + Gradio interface | `app.py` (TBD) | not started |
 | 14 | Evaluation write-up + docs | `docs/`, `README.md` | not started |
@@ -58,3 +58,4 @@ regenerated from a clean tagged environment in Phase 1.
 | 2026-08-27 | `b328e47`† | M5.7 mastery basis diagnostic | `--suite basis` | oracle_basis > no_state on mastery + final-window acc (0.841 vs 0.827); BKT/DKT basis do not retain gap; linear map was a bottleneck — see M5.7 |
 | 2026-08-27 | `b328e47`† | M6 Step 1 delayed I/F calibration | `delayed_effects` | OFF: myopic→m_T=1.0; ON: myopic early-best but interleave wins m_T (0.565 vs 0.522); I/F latent — ready for DQN |
 | 2026-08-30 | Phase 2 worktree; source SHA in result JSON | episodic RL environment validation, 500 paired episodes | `configs/config.yaml -> rl` | all gates pass; delayed OFF myopic 1.000 > interleave 0.831 final mastery; delayed ON interleave 0.558 > myopic 0.518 while myopic wins early reward |
+| 2026-08-31 | Phase 3 worktree; source SHA in result JSON | oracle-state DQN, 2,000 train / 100 validation / 500 held-out episodes | `configs/config.yaml -> rl,dqn` | best at episode 1,800; held-out final mastery **0.5700 +/- 0.1757**, return 0.2728; simulated oracle upper bound only |

@@ -56,6 +56,29 @@ rl:
   delayed_effects: true
   heterogeneous: false
 
+dqn:
+  train_episodes: 2000
+  hidden_dims: [128, 128]
+  learning_rate: 0.0005
+  batch_size: 128
+  replay_capacity: 100000
+  min_replay_size: 2000
+  target_sync_steps: 500
+  train_frequency: 4
+  gradient_clip: 10.0
+  reward_scale: 100.0
+  double_dqn: false
+  epsilon_start: 1.0
+  epsilon_end: 0.05
+  epsilon_decay_steps: 60000
+  validation_interval: 100
+  validation_episodes: 100
+  heldout_eval_episodes: 500
+  train_seed_start: 10000
+  validation_seed_start: 100000
+  heldout_seed_start: 200000
+  torch_num_threads: 1
+
 llm:
   provider: "anthropic"        # placeholder — fill in during Day 11-12
   model: "claude-sonnet-4-6"

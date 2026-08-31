@@ -25,6 +25,7 @@ Student interaction sequences (src/data/preprocess.py)
 │  - Random (src/policy/random_policy.py) │
 │  - Rule-based (src/policy/rule_based.py) │
 │  - Contextual bandit (src/policy/bandit.py) │
+│  - DQN (src/rl/dqn.py; oracle Phase 3) │
 └──────────────┬───────────────┘
                ▼
         Intervention a_t
@@ -39,16 +40,17 @@ Reward / outcome → KT tracker update (ŝ), env mastery update
 ```
 
 The sequential RL interface is `src/rl/environment.py`. It wraps the simulator
-as a fixed-horizon POMDP with Gymnasium-style `reset`/`step` returns. See
-`docs/rl_environment.md` for the observation, hidden-state, reward, terminal,
-and leakage contracts that the DQN implementation must follow.
+as a fixed-horizon POMDP with Gymnasium-style `reset`/`step` returns. The first
+learned sequential policy is the replay-buffer DQN in `src/rl/dqn.py`, trained
+by `scripts/train_dqn.py`. See `docs/rl_environment.md` for the observation,
+hidden-state, reward, terminal, and leakage contracts it follows.
 
 ## Key architectural decision: separation of concerns
 
 The LLM is a **communication layer**, not a **decision-making layer**.
 
 - Student model (BKT/DKT) decides *what the student knows*.
-- Policy (rule-based/bandit) decides *what intervention to give next*.
+- Policy (rule-based/bandit/DQN) decides *what intervention to give next*.
 - LLM decides *how to phrase that intervention*, in the student's
   preferred language, grounded in retrieved course material.
 
