@@ -86,7 +86,7 @@ items. Double DQN and recurrent-policy comparisons remain future work.
 From the repository root with the Python 3.10 environment installed:
 
 ```powershell
-python scripts/train_dqn.py --config configs/config.yaml --device cpu
+python scripts/train_dqn.py --config configs/dqn_train.yaml --device cpu
 ```
 
 The reference CPU run took about 106 seconds. It writes the best and final

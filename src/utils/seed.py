@@ -27,7 +27,40 @@ def set_seed(seed: int = 42) -> None:
         pass
 
 
+def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively merge mappings while replacing scalar/list values."""
+    merged = dict(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def _load_config(path: Path, loading: set) -> Dict[str, Any]:
+    resolved = path.resolve()
+    if resolved in loading:
+        chain = " -> ".join(str(item) for item in [*loading, resolved])
+        raise ValueError(f"Config inheritance cycle detected: {chain}")
+    if not resolved.exists():
+        raise FileNotFoundError(f"Config file does not exist: {resolved}")
+
+    with open(resolved, "r", encoding="utf-8") as file:
+        payload = yaml.safe_load(file) or {}
+    if not isinstance(payload, dict):
+        raise ValueError(f"Config root must be a mapping: {resolved}")
+
+    parent = payload.pop("extends", None)
+    if parent is None:
+        return payload
+    if not isinstance(parent, str) or not parent.strip():
+        raise ValueError(f"extends must be a non-empty path string: {resolved}")
+    parent_path = (resolved.parent / parent).resolve()
+    base = _load_config(parent_path, loading | {resolved})
+    return _deep_merge(base, payload)
+
+
 def load_config(path: str = "configs/config.yaml") -> Dict[str, Any]:
-    """Load the project YAML config."""
-    with open(Path(path), "r") as f:
-        return yaml.safe_load(f)
+    """Load YAML config, optionally inheriting via a relative `extends` path."""
+    return _load_config(Path(path), set())

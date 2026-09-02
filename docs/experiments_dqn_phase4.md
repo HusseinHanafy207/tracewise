@@ -131,17 +131,19 @@ Phase 4 result.
 
 ## Reproduction
 
-The full experiment uses the config under `configs/config.yaml -> phase4`.
+The full experiment uses `configs/dqn_evaluation.yaml`, which inherits the
+canonical training settings from `configs/dqn_train.yaml` and the common
+project settings from `configs/config.yaml`.
 Starting from the Phase 3 checkpoint and existing BKT/DKT checkpoints, run:
 
 ```powershell
-python scripts/train_dqn.py --observation-mode oracle --seed 43 --tag seed43 --device cpu
-python scripts/train_dqn.py --observation-mode oracle --seed 44 --tag seed44 --device cpu
-python scripts/train_dqn.py --observation-mode oracle --gamma 1.0 --tag gamma1 --device cpu
-python scripts/train_dqn.py --observation-mode bkt --device cpu
-python scripts/train_dqn.py --observation-mode dkt --device cpu
-python scripts/train_dqn.py --observation-mode no_state --device cpu
-python scripts/eval_dqn_suite.py --suite full --device cpu
+python scripts/train_dqn.py --config configs/dqn_train.yaml --observation-mode oracle --seed 43 --tag seed43 --device cpu
+python scripts/train_dqn.py --config configs/dqn_train.yaml --observation-mode oracle --seed 44 --tag seed44 --device cpu
+python scripts/train_dqn.py --config configs/dqn_train.yaml --observation-mode oracle --gamma 1.0 --tag gamma1 --device cpu
+python scripts/train_dqn.py --config configs/dqn_train.yaml --observation-mode bkt --device cpu
+python scripts/train_dqn.py --config configs/dqn_train.yaml --observation-mode dkt --device cpu
+python scripts/train_dqn.py --config configs/dqn_train.yaml --observation-mode no_state --device cpu
+python scripts/eval_dqn_suite.py --config configs/dqn_evaluation.yaml --suite full --device cpu
 ```
 
 Generated checkpoints, JSON traces, and plots remain under the gitignored

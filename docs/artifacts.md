@@ -73,6 +73,8 @@ numbers should not be merged into a single training history.
   - SHA-256: `f8d3bbce66ee70c71a99c003ba387e81d994f9052429fc07360f2cfc42417b46`
 - `results/checkpoints/dkt_best.pt` (local CPU run, epoch 14)
   - SHA-256: `6c3c00e2afeb4f3942454ac7ff5943e1fc45d860f9b92b0be530ee1c426930bb`
+- `results/checkpoints/dqn_oracle_best.pt` (canonical seed-42 oracle DQN)
+  - SHA-256: `8ff6c47950ee058ad12be0dff29514cd1f044c741d67e99992558901fbf6244c`
 
 ## Result fingerprints
 
@@ -86,6 +88,33 @@ numbers should not be merged into a single training history.
 - `results/kt_policy_hetero.json`: `3811fecd33227c46490ed2eea9c4fcb779009be6c85000e8a97227b2b12733d5`
 - `results/kt_policy_basis.json`: `8bef1aa454073d418111fd3b684495e17e1876a4aa900ae5c3f366293a375505`
 - `results/delayed_effects_calibration.json`: `2d140a3f6f2d8bf3841223d10733543b13c6eb11556fd55c1a27323a6a60bca6`
+- `results/dqn_phase4_evaluation.json`: `83462590efb219338506476ab6cc8d7bf92f2c8315c371f6244baad3505b9cb0`
+
+## Portfolio example artifacts
+
+Two small artifacts are committed so the policy behavior can be inspected on a
+fresh clone without downloading a checkpoint or retraining:
+
+- `docs/examples/dqn_episode_seed200000.json` is a full 50-step trace from the
+  canonical oracle-state DQN. Seed `200000` is the first fixed held-out seed,
+  not an outcome-selected episode. The trace records the checkpoint and demo
+  generator SHA-256 hashes plus Git worktree provenance.
+  - SHA-256: `e69fd213924b08dde13f04f0397ca35985e76d6617ca451184dc2071736c7229`
+- `docs/media/dqn_episode.gif` is rendered directly from that trace.
+  - SHA-256: `badb2cec68718fb9fe4756a9bdeb5abd529c1e2605b567b7a517d88ec6ba2b78`
+- `docs/examples/portfolio_results.json` is a lightweight, machine-readable
+  copy of the headline metrics already documented in the experiment reports.
+  - SHA-256: `d02a105b1cd237f244655ba1f6918511d6e87f4435e0ad678e0e6f13fcc00d2d`
+
+These files do not contain real student records. The episode is entirely
+simulated, and oracle mastery is included for explanatory evaluation only.
+
+Replay or re-render it with:
+
+```powershell
+python scripts/demo_policy_episode.py --replay docs/examples/dqn_episode_seed200000.json
+python scripts/demo_policy_episode.py --replay docs/examples/dqn_episode_seed200000.json --save-gif docs/media/dqn_episode.gif
+```
 
 ## Reproducing artifacts
 

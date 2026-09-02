@@ -1,8 +1,9 @@
 # 14-Day Roadmap
 
-Hard milestone at day 14: BKT, DKT, BKT-vs-DKT results, rule-based policy,
-contextual bandit, offline simulated policy comparison, basic LLM tutor,
-end-to-end demo. Everything else is optional.
+The research-core milestone is BKT, DKT, leakage-safe comparison, adaptive
+policy baselines, delayed-effect RL, controlled evaluation, and a replayable
+demo. That milestone is complete. LLM/RAG and a user interface are separate,
+optional product phases and are not part of the claimed RL result.
 
 | Day | Goal | Module(s) | Status |
 |---|---|---|---|
@@ -18,7 +19,7 @@ end-to-end demo. Everything else is optional.
 | 11b | M6 DQN controlled evaluation | `src/rl/evaluation.py`, `scripts/eval_dqn_suite.py` | done — paired baselines, 3 training seeds, BKT/DKT/no-state, gamma ablation |
 | 11–12 | LLM + RAG integration | `src/llm/tutor.py` | prompt stub only |
 | 13 | Arabic + Gradio interface | `app.py` (TBD) | not started |
-| 14 | Evaluation write-up + docs | `docs/`, `README.md` | not started |
+| 14 | Research-core evaluation package | `README.md`, `docs/dqn_results.md`, configs, replay trace/GIF | done — Phase 5 portfolio finish line |
 
 ## Priority order if time runs short
 
@@ -61,3 +62,4 @@ regenerated from a clean tagged environment in Phase 1.
 | 2026-08-30 | Phase 2 worktree; source SHA in result JSON | episodic RL environment validation, 500 paired episodes | `configs/config.yaml -> rl` | all gates pass; delayed OFF myopic 1.000 > interleave 0.831 final mastery; delayed ON interleave 0.558 > myopic 0.518 while myopic wins early reward |
 | 2026-08-31 | Phase 3 worktree; source SHA in result JSON | oracle-state DQN, 2,000 train / 100 validation / 500 held-out episodes | `configs/config.yaml -> rl,dqn` | best at episode 1,800; held-out final mastery **0.5700 +/- 0.1757**, return 0.2728; simulated oracle upper bound only |
 | 2026-08-31 | Phase 4 worktree; source/checkpoint SHA in result JSON | paired DQN evaluation, 500 common episodes; 3 oracle training seeds + state/gamma ablations | `configs/config.yaml -> phase4` | seed-42 DQN beats interleave by +0.0124 [0.0064, 0.0184], but 3-seed mean 0.5550 +/- 0.0208 vs interleave 0.5576; **not a robust DQN win** |
+| 2026-09-01 | `55a08e2` + Phase 5 worktree | portfolio packaging; no new model training | `configs/dqn_train.yaml`, `configs/dqn_evaluation.yaml` | research question, system diagram, leakage protocol, headline/limitation summary, replayable held-out episode, GIF, and machine-readable result snapshot added; no real-student claim |

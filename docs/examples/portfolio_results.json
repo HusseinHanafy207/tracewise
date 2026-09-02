@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "disclaimer": "All policy and DQN outcomes are simulated. No real students were evaluated.",
+  "dataset": {
+    "name": "ASSISTments 2009 skill-builder",
+    "students": 3119,
+    "skills": 123,
+    "interactions": 454232,
+    "split_unit": "student",
+    "train_students": 2183,
+    "validation_students": 467,
+    "test_students": 469,
+    "student_overlap": 0
+  },
+  "knowledge_tracing_test": {
+    "aligned_interactions": 33829,
+    "bkt": {
+      "roc_auc": 0.7598,
+      "accuracy": 0.7224,
+      "brier": 0.1857,
+      "ece": 0.0203,
+      "parameters": 492
+    },
+    "dkt": {
+      "roc_auc": 0.8531,
+      "accuracy": 0.7836,
+      "brier": 0.1446,
+      "ece": 0.0111,
+      "parameters": 179579
+    }
+  },
+  "contextual_bandit": {
+    "protocol": "simulated 50-step episodes",
+    "finding": "A nonlinear mastery basis exposed a modest oracle-state advantage; BKT/DKT estimates did not retain it.",
+    "linucb_oracle_basis": {
+      "final_mastery": 0.972,
+      "final_window_accuracy": 0.841
+    },
+    "linucb_no_state": {
+      "final_mastery": 0.966,
+      "final_window_accuracy": 0.827
+    }
+  },
+  "delayed_reward_calibration": {
+    "episodes": 500,
+    "delayed_effects_off": {
+      "myopic_final_mastery": 1.0,
+      "interleave_final_mastery": 0.831
+    },
+    "delayed_effects_on": {
+      "myopic_final_mastery": 0.518,
+      "interleave_final_mastery": 0.558,
+      "myopic_early_reward": 0.0128,
+      "interleave_early_reward": 0.0072
+    }
+  },
+  "dqn_heldout": {
+    "episodes": 500,
+    "training_episodes_per_agent": 2000,
+    "canonical_seed_42": {
+      "final_mastery": 0.57,
+      "bootstrap_95_ci": [0.5551, 0.5855],
+      "paired_difference_vs_interleave": 0.0124,
+      "paired_difference_95_ci": [0.0064, 0.0184]
+    },
+    "three_seed_summary": {
+      "final_mastery_by_seed": [0.57, 0.5313, 0.5637],
+      "mean": 0.555,
+      "standard_deviation": 0.0208,
+      "interleave_reference": 0.5576,
+      "conclusion": "DQN is competitive with interleaving, not robustly superior."
+    },
+    "state_ablation": {
+      "oracle": 0.57,
+      "bkt": 0.5144,
+      "dkt": 0.5151,
+      "no_state": 0.5105
+    },
+    "discount_ablation": {
+      "gamma_0_99": 0.57,
+      "gamma_1_0": 0.5482
+    }
+  },
+  "demo": {
+    "trace": "docs/examples/dqn_episode_seed200000.json",
+    "animation": "docs/media/dqn_episode.gif",
+    "seed": 200000,
+    "selection": "first fixed held-out evaluation seed; not selected by outcome"
+  },
+  "detailed_sources": [
+    "docs/experiments_kt.md",
+    "docs/experiments_policy.md",
+    "docs/experiments_dqn.md",
+    "docs/experiments_dqn_phase4.md",
+    "docs/artifacts.md"
+  ]
+}

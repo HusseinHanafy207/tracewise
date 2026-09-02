@@ -1,0 +1,9 @@
+# Portfolio reproduction config for the controlled evaluation.
+extends: dqn_train.yaml
+
+phase4:
+  training_seeds: [42, 43, 44]
+  gamma_ablation: 1.0
+  state_conditions: [oracle, bkt, dkt, no_state]
+  evaluation_episodes: 500
+  bootstrap_resamples: 5000
