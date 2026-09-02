@@ -1,0 +1,5 @@
+# Controlled Double DQN run: identical to canonical DQN except target selection.
+extends: dqn_train.yaml
+
+dqn:
+  double_dqn: true

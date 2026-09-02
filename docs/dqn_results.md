@@ -56,11 +56,26 @@ With architecture and seed fixed, `gamma=1.0` reaches 0.5482 versus 0.5700 for
 `gamma=0.99`. This is an optimization outcome, not a change to the undiscounted
 evaluation metric.
 
+## Double DQN follow-up
+
+Changing only the bootstrap target to Double DQN produces final mastery
+0.5686, 0.5686, and 0.5588 for training seeds 42, 43, and 44. The three-seed
+mean improves from 0.5550 to **0.5653**, while across-seed standard deviation
+falls from 0.0208 to **0.0057**.
+
+This apparent stability gain is promising but based on only three trained
+agents. Double DQN beats matched vanilla DQN for seed 43, is effectively tied
+for seed 42, and loses for seed 44. The mean improvement is therefore driven by
+one seed rather than a consistent seed-by-seed advantage. See
+[`experiments_double_dqn.md`](experiments_double_dqn.md) for the controlled
+protocol and paired intervals.
+
 ## Reproduce or inspect
 
 ```powershell
 python scripts/train_dqn.py --config configs/dqn_train.yaml --device cpu
 python scripts/eval_dqn_suite.py --config configs/dqn_evaluation.yaml --suite full --device cpu
+python scripts/eval_double_dqn.py --config configs/double_dqn_evaluation.yaml --device cpu
 python scripts/demo_policy_episode.py --replay docs/examples/dqn_episode_seed200000.json
 ```
 

@@ -75,3 +75,40 @@ def test_config_rejects_an_unreachable_replay_warmup():
             replay_capacity=10,
             min_replay_size=11,
         )
+
+
+@pytest.mark.parametrize(
+    ("double_dqn", "expected_target"),
+    [(False, 10.0), (True, 1.0)],
+)
+def test_double_dqn_separates_online_action_selection_from_target_evaluation(
+    double_dqn,
+    expected_target,
+):
+    config = DQNConfig(
+        hidden_dims=(2,),
+        gamma=1.0,
+        batch_size=2,
+        replay_capacity=4,
+        min_replay_size=2,
+        target_sync_steps=100,
+        reward_scale=1.0,
+        double_dqn=double_dqn,
+    )
+    agent = DQNAgent(1, 2, config, torch.device("cpu"), seed=3)
+    with torch.no_grad():
+        for parameter in agent.online.parameters():
+            parameter.zero_()
+        for parameter in agent.target.parameters():
+            parameter.zero_()
+        agent.online.network[-1].bias.copy_(torch.tensor([2.0, 0.0]))
+        agent.target.network[-1].bias.copy_(torch.tensor([1.0, 10.0]))
+
+    state = np.asarray([0.0], dtype=np.float32)
+    for _ in range(2):
+        agent.store(state, 0, 0.0, state, False)
+
+    metrics = agent.learn()
+
+    assert metrics is not None
+    assert metrics["target_mean"] == pytest.approx(expected_target)

@@ -75,6 +75,12 @@ numbers should not be merged into a single training history.
   - SHA-256: `6c3c00e2afeb4f3942454ac7ff5943e1fc45d860f9b92b0be530ee1c426930bb`
 - `results/checkpoints/dqn_oracle_best.pt` (canonical seed-42 oracle DQN)
   - SHA-256: `8ff6c47950ee058ad12be0dff29514cd1f044c741d67e99992558901fbf6244c`
+- `results/checkpoints/dqn_oracle_best_double_seed42.pt`
+  - SHA-256: `6a418f261c16b5f56428357daab33a9e6df8db4f790c93c602a90a89a7e73f89`
+- `results/checkpoints/dqn_oracle_best_double_seed43.pt`
+  - SHA-256: `dea0fb9ab61b934b08eed00bfa144b741e08594f86699e1787fdce6b3e732d23`
+- `results/checkpoints/dqn_oracle_best_double_seed44.pt`
+  - SHA-256: `4fb42ad11f158a7b9cdda9b2fa757cc7206ef5602be132e403b02353393ebc69`
 
 ## Result fingerprints
 
@@ -89,6 +95,7 @@ numbers should not be merged into a single training history.
 - `results/kt_policy_basis.json`: `8bef1aa454073d418111fd3b684495e17e1876a4aa900ae5c3f366293a375505`
 - `results/delayed_effects_calibration.json`: `2d140a3f6f2d8bf3841223d10733543b13c6eb11556fd55c1a27323a6a60bca6`
 - `results/dqn_phase4_evaluation.json`: `83462590efb219338506476ab6cc8d7bf92f2c8315c371f6244baad3505b9cb0`
+- `results/double_dqn_comparison.json`: `4c532673987ec191fb7b71dd49e0af676f4fd76fe94dfb67d25e39ad72808c37`
 
 ## Portfolio example artifacts
 
@@ -104,7 +111,10 @@ fresh clone without downloading a checkpoint or retraining:
   - SHA-256: `badb2cec68718fb9fe4756a9bdeb5abd529c1e2605b567b7a517d88ec6ba2b78`
 - `docs/examples/portfolio_results.json` is a lightweight, machine-readable
   copy of the headline metrics already documented in the experiment reports.
-  - SHA-256: `d02a105b1cd237f244655ba1f6918511d6e87f4435e0ad678e0e6f13fcc00d2d`
+  - SHA-256: `1fef9635de474f931a0f2ea5897d0df0b5ff72f92493c12beba2ac9914b9935f`
+- `docs/examples/double_dqn_results.json` preserves the controlled comparison's
+  compact three-seed summary and raw-result fingerprint.
+  - SHA-256: `37fbe097dafe6d2429a3430d6a692202e87856bfc12ac781bb7e34096893a3a8`
 
 These files do not contain real student records. The episode is entirely
 simulated, and oracle mastery is included for explanatory evaluation only.

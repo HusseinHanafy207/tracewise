@@ -256,8 +256,9 @@ def main(
     figure_path = results_dir / "figures" / f"{stem}_training{suffix}.png"
     result_path = results_dir / f"{stem}_training{suffix}.json"
 
+    algorithm = "Double DQN" if agent.config.double_dqn else "DQN"
     print(
-        f"DQN {state_tracking.condition} training | device={device} | "
+        f"{algorithm} {state_tracking.condition} training | device={device} | "
         f"seed={seed} | gamma={agent.config.gamma:g} | episodes={train_episodes} | "
         f"obs={probe_env.observation_dim} | actions={probe_env.n_actions}"
     )
@@ -391,6 +392,7 @@ def main(
             "states remain simulator evaluations. No real-student learning claim."
         ),
         "device": str(device),
+        "algorithm": "double_dqn" if agent.config.double_dqn else "dqn",
         "seed": seed,
         "observation_condition": state_tracking.condition,
         "train_episodes": train_episodes,

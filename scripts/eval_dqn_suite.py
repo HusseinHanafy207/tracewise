@@ -187,6 +187,12 @@ def load_dqn_condition(
             f"{checkpoint_path} gamma={agent.config.gamma} does not match "
             f"manifest gamma={spec['gamma']}"
         )
+    expected_double_dqn = bool(spec.get("double_dqn", False))
+    if agent.config.double_dqn != expected_double_dqn:
+        raise ValueError(
+            f"{checkpoint_path} double_dqn={agent.config.double_dqn} does not "
+            f"match manifest double_dqn={expected_double_dqn}"
+        )
 
     def policy_factory(episode_seed: int):
         return lambda observation, step: agent.select_action(observation, epsilon=0.0)
@@ -206,6 +212,7 @@ def load_dqn_condition(
     summary["observation_condition"] = spec["condition"]
     summary["training_seed"] = int(spec["training_seed"])
     summary["gamma"] = float(spec["gamma"])
+    summary["algorithm"] = "double_dqn" if agent.config.double_dqn else "dqn"
     return summary
 
 

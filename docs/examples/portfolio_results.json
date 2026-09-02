@@ -81,6 +81,18 @@
       "gamma_1_0": 0.5482
     }
   },
+  "double_dqn_comparison": {
+    "training_episodes_per_agent": 2000,
+    "training_seeds": [42, 43, 44],
+    "heldout_episodes": 500,
+    "vanilla_mean": 0.5549968704056064,
+    "vanilla_training_seed_std": 0.02078323979897406,
+    "double_dqn_mean": 0.5653168921898891,
+    "double_dqn_training_seed_std": 0.005651390775153468,
+    "mean_difference": 0.010320021784282747,
+    "double_dqn_better_seed_count": 1,
+    "conclusion": "Double DQN improved observed three-seed stability, but did not consistently outperform vanilla DQN seed by seed."
+  },
   "demo": {
     "trace": "docs/examples/dqn_episode_seed200000.json",
     "animation": "docs/media/dqn_episode.gif",
@@ -92,6 +104,7 @@
     "docs/experiments_policy.md",
     "docs/experiments_dqn.md",
     "docs/experiments_dqn_phase4.md",
+    "docs/experiments_double_dqn.md",
     "docs/artifacts.md"
   ]
 }

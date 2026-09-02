@@ -17,6 +17,7 @@ optional product phases and are not part of the claimed RL result.
 | 10.7 | Mastery basis diagnostic | `--suite basis` | done — M5.7 closes bandit section |
 | 11a | M6 delayed I/F + DQN (oracle) | delayed simulator, `src/rl/environment.py`, `src/rl/dqn.py`, `scripts/train_dqn.py` | done — best checkpoint selected on validation; 500-seed held-out evaluation |
 | 11b | M6 DQN controlled evaluation | `src/rl/evaluation.py`, `scripts/eval_dqn_suite.py` | done — paired baselines, 3 training seeds, BKT/DKT/no-state, gamma ablation |
+| 11c | M6 Double DQN stability check | `scripts/eval_double_dqn.py` | done — 3 matched training seeds, 500 held-out episodes each |
 | 11–12 | LLM + RAG integration | `src/llm/tutor.py` | prompt stub only |
 | 13 | Arabic + Gradio interface | `app.py` (TBD) | not started |
 | 14 | Research-core evaluation package | `README.md`, `docs/dqn_results.md`, configs, replay trace/GIF | done — Phase 5 portfolio finish line |
@@ -63,3 +64,4 @@ regenerated from a clean tagged environment in Phase 1.
 | 2026-08-31 | Phase 3 worktree; source SHA in result JSON | oracle-state DQN, 2,000 train / 100 validation / 500 held-out episodes | `configs/config.yaml -> rl,dqn` | best at episode 1,800; held-out final mastery **0.5700 +/- 0.1757**, return 0.2728; simulated oracle upper bound only |
 | 2026-08-31 | Phase 4 worktree; source/checkpoint SHA in result JSON | paired DQN evaluation, 500 common episodes; 3 oracle training seeds + state/gamma ablations | `configs/config.yaml -> phase4` | seed-42 DQN beats interleave by +0.0124 [0.0064, 0.0184], but 3-seed mean 0.5550 +/- 0.0208 vs interleave 0.5576; **not a robust DQN win** |
 | 2026-09-01 | `55a08e2` + Phase 5 worktree | portfolio packaging; no new model training | `configs/dqn_train.yaml`, `configs/dqn_evaluation.yaml` | research question, system diagram, leakage protocol, headline/limitation summary, replayable held-out episode, GIF, and machine-readable result snapshot added; no real-student claim |
+| 2026-09-02 | `d1ad54b` + Double DQN worktree | vanilla DQN vs Double DQN, 3 training seeds, 2,000 episodes/agent, 500 common held-out episodes | `configs/double_dqn_train.yaml`, `configs/double_dqn_evaluation.yaml` | Double DQN mean/std 0.5653/0.0057 vs vanilla 0.5550/0.0208; observed stability improves, but Double DQN wins only 1/3 matched seeds |

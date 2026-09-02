@@ -29,6 +29,7 @@ to make the research demo interpretable.
 | Is delayed planning necessary? | With delayed effects: interleaving final mastery **0.558**, myopic 0.518, although myopic wins early reward | The simulator contains a real short- versus long-horizon tradeoff. |
 | Does DQN beat the strongest heuristic? | Canonical paired difference vs interleaving: **+0.0124** [0.0064, 0.0184] | One DQN wins, but this is not stable across training seeds. |
 | Is the DQN result robust? | Three-seed DQN mean **0.5550 +/- 0.0208**; interleaving 0.5576 | DQN is competitive, not reliably superior. |
+| Does Double DQN improve stability? | Three-seed mean/std: Double DQN **0.5653 / 0.0057**, vanilla 0.5550 / 0.0208 | Observed variance falls sharply, but the mean gain is driven by one seed. |
 | What is the observability cost? | Oracle DQN 0.5700; BKT 0.5144; DKT 0.5151; no-state 0.5105 | Oracle state is valuable; current KT estimates add only a small gain over no state. |
 
 Machine-readable headline values are saved in
@@ -114,6 +115,13 @@ independent DQN training seeds, however, final mastery is 0.5700, 0.5313, and
 conclusion is that DQN learned a competitive sequential policy, not that it
 robustly won.
 
+With only the bootstrap target changed, three Double DQN agents reach 0.5686,
+0.5686, and 0.5588. Their mean rises to 0.5653 and their across-seed standard
+deviation falls from 0.0208 to 0.0057. Double DQN beats matched vanilla DQN for
+only one of three seeds, however, so this supports improved observed stability,
+not universal superiority. See the
+[`controlled Double DQN comparison`](docs/experiments_double_dqn.md).
+
 ## Run the project
 
 The reproducible environment targets Python 3.10.11. Select an existing Python
@@ -125,7 +133,7 @@ py -3.10 -m pip install -r requirements-dev.txt
 py -3.10 -m pytest
 ```
 
-The 34 tests use synthetic fixtures and need neither the unversioned raw CSV nor
+The 39 tests use synthetic fixtures and need neither the unversioned raw CSV nor
 saved checkpoints.
 
 ### Replay the portfolio demo without training
@@ -176,6 +184,13 @@ py -3.10 scripts/train_dqn.py --config configs/dqn_train.yaml --device cpu
 py -3.10 scripts/eval_dqn_suite.py --config configs/dqn_evaluation.yaml --suite full --device cpu
 ```
 
+The three-seed Double DQN experiment uses
+`configs/double_dqn_train.yaml` and is evaluated with:
+
+```powershell
+py -3.10 scripts/eval_double_dqn.py --config configs/double_dqn_evaluation.yaml --device cpu
+```
+
 The full DQN suite expects the state/seed/discount checkpoints listed in
 [`docs/experiments_dqn_phase4.md`](docs/experiments_dqn_phase4.md). Generated
 checkpoints and raw result traces remain gitignored.
@@ -186,6 +201,7 @@ checkpoints and raw result traces remain gitignored.
 - [Contextual-bandit and estimated-state experiments](docs/experiments_policy.md)
 - [Initial DQN training result](docs/experiments_dqn.md)
 - [Controlled DQN evaluation](docs/experiments_dqn_phase4.md)
+- [Vanilla DQN versus Double DQN](docs/experiments_double_dqn.md)
 - [Artifact hashes and lineage](docs/artifacts.md)
 - [Project roadmap and experiment log](docs/roadmap.md)
 
@@ -198,8 +214,8 @@ checkpoints and raw result traces remain gitignored.
   simulator, creating a deliberate but important domain mismatch.
 - The simulator focuses on one skill at a time and cannot exploit DKT's full
   cross-skill representation.
-- Three DQN training seeds are enough to reveal instability, not enough to
-  characterize its full distribution.
+- Three training seeds are enough to reveal instability and motivate Double
+  DQN, not enough to characterize either algorithm's full distribution.
 - The DQN is feed-forward in a POMDP; recurrent policies and richer
   multi-skill/prerequisite dynamics remain future work.
 - No LLM/RAG tutor, Arabic interface, or real-user study is claimed as complete.

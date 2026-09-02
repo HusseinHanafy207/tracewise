@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "disclaimer": "Simulated oracle-state comparison only. No intervention policy was evaluated on real students.",
+  "controlled_change": "Only dqn.double_dqn changes from false to true; all other configured training and evaluation settings match vanilla DQN.",
+  "training_episodes_per_agent": 2000,
+  "training_seeds": [42, 43, 44],
+  "heldout_episodes": 500,
+  "heldout_seed_range": [200000, 200499],
+  "vanilla_dqn": {
+    "final_mastery_by_seed": {
+      "42": 0.5699939255025326,
+      "43": 0.5312730752058384,
+      "44": 0.5637236105084481
+    },
+    "mean_across_training_seeds": 0.5549968704056064,
+    "std_across_training_seeds": 0.02078323979897406,
+    "range_across_training_seeds": 0.03872085029669414
+  },
+  "double_dqn": {
+    "final_mastery_by_seed": {
+      "42": 0.5686014683464354,
+      "43": 0.56855793159371,
+      "44": 0.5587912766295219
+    },
+    "mean_across_training_seeds": 0.5653168921898891,
+    "std_across_training_seeds": 0.005651390775153468,
+    "range_across_training_seeds": 0.009810191716913552
+  },
+  "double_minus_vanilla_by_seed": {
+    "42": {
+      "mean": -0.001392457156097159,
+      "paired_episode_bootstrap_95_ci": [-0.002885767302624566, 0.00018199491581199977]
+    },
+    "43": {
+      "mean": 0.03728485638787153,
+      "paired_episode_bootstrap_95_ci": [0.03133856843145086, 0.04349122570903832]
+    },
+    "44": {
+      "mean": -0.004932333878926135,
+      "paired_episode_bootstrap_95_ci": [-0.00678408272747738, -0.003223203320231037]
+    }
+  },
+  "across_training_seed_comparison": {
+    "mean_difference": 0.010320021784282747,
+    "std_of_seed_level_differences": 0.023419210292031218,
+    "double_dqn_better_seed_count": 1,
+    "n_training_seeds": 3,
+    "conclusion": "Double DQN improved observed three-seed stability, but did not consistently outperform vanilla DQN seed by seed."
+  },
+  "raw_result_sha256": "4c532673987ec191fb7b71dd49e0af676f4fd76fe94dfb67d25e39ad72808c37",
+  "source_head_commit": "d1ad54bd482031581f013ccbc5d2c7b57314a5db",
+  "source_working_tree_dirty": true
+}

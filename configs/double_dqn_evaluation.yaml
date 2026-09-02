@@ -1,0 +1,7 @@
+# Three-seed vanilla DQN versus Double DQN comparison.
+extends: double_dqn_train.yaml
+
+double_dqn_evaluation:
+  training_seeds: [42, 43, 44]
+  evaluation_episodes: 500
+  bootstrap_resamples: 5000
