@@ -1,0 +1,11 @@
+# Matched Double DQN comparison at 2,000 and 5,000 training episodes.
+extends: double_dqn_train_5000.yaml
+
+training_budget_evaluation:
+  training_seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+  budgets: [2000, 5000]
+  checkpoint_kinds: [best, final]
+  reference_tag_template: "double_seed{seed}"
+  candidate_tag_template: "double_budget5000_seed{seed}"
+  evaluation_episodes: 500
+  bootstrap_resamples: 5000

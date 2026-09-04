@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "disclaimer": "Simulated oracle-state Double DQN comparison only. No intervention policy was evaluated on real students.",
+  "controlled_change": "Only dqn.train_episodes changes from 2000 to 5000; all ten candidate runs exactly reproduce their matched first 2000 training and validation records.",
+  "training_seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+  "heldout_episodes": 500,
+  "heldout_seed_range": [200000, 200499],
+  "validation_selected": {
+    "episodes_2000": {
+      "mean": 0.567589615811935,
+      "training_seed_std": 0.014712887377014785
+    },
+    "episodes_5000": {
+      "mean": 0.5755913667017729,
+      "training_seed_std": 0.008746860529078892
+    },
+    "candidate_minus_reference_mean": 0.008001750889837933,
+    "training_seed_bootstrap_95_ci": [
+      0.0018148571192204254,
+      0.015688511293988773
+    ],
+    "candidate_better_seed_count": 5,
+    "candidate_tied_seed_count": 5,
+    "std_difference": -0.005966026847935893,
+    "std_difference_training_seed_bootstrap_95_ci": [
+      -0.011339463381666295,
+      0.0005279078757251335
+    ]
+  },
+  "exact_endpoint": {
+    "episodes_2000": {
+      "mean": 0.555614974452894,
+      "training_seed_std": 0.016604655627323467
+    },
+    "episodes_5000": {
+      "mean": 0.5414087634237177,
+      "training_seed_std": 0.01215930159829322
+    },
+    "candidate_minus_reference_mean": -0.014206211029176064,
+    "training_seed_bootstrap_95_ci": [
+      -0.022954802089711134,
+      -0.002630490908007634
+    ],
+    "candidate_better_seed_count": 2,
+    "candidate_tied_seed_count": 0,
+    "std_difference": -0.004445354029030247,
+    "std_difference_training_seed_bootstrap_95_ci": [
+      -0.010030248534336208,
+      0.0012138154291471978
+    ]
+  },
+  "conclusion": "The larger budget improves validation-selected policy quality but worsens exact endpoint performance; neither comparison establishes reduced training-seed variability.",
+  "raw_result_sha256": "9b481df3e3db33643972a0c3c04f604e1798d06b4fb3e1b5b5ce51ea7af8ec29",
+  "source_head_commit": "9e7901dfd06bd86249a2a045660c75e7e463ad06",
+  "source_working_tree_dirty": true
+}

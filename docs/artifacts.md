@@ -98,10 +98,11 @@ numbers should not be merged into a single training history.
 - `results/double_dqn_comparison.json`: `062f17f413f87f9ad297ead4f463598303137781b33602c121559827f36c6069`
 - `results/q_overestimation_diagnostic.json` (shared state bank): `058a92f1856bd74368ed13e5d2d07d3039b59271ac644249d4d955386f9861f6`
 - `results/q_overestimation_diagnostic_on_policy.json`: `db7fa9da4d4398ff7adb5f896138388dacd2b7de06e99bc79625f58e15cb34b7`
+- `results/double_dqn_budget_comparison.json`: `9b481df3e3db33643972a0c3c04f604e1798d06b4fb3e1b5b5ce51ea7af8ec29`
 
 ## Portfolio example artifacts
 
-Two small artifacts are committed so the policy behavior can be inspected on a
+Small artifacts are committed so the policy behavior can be inspected on a
 fresh clone without downloading a checkpoint or retraining:
 
 - `docs/examples/dqn_episode_seed200000.json` is a full 50-step trace from the
@@ -113,10 +114,13 @@ fresh clone without downloading a checkpoint or retraining:
   - SHA-256: `badb2cec68718fb9fe4756a9bdeb5abd529c1e2605b567b7a517d88ec6ba2b78`
 - `docs/examples/portfolio_results.json` is a lightweight, machine-readable
   copy of the headline metrics already documented in the experiment reports.
-  - SHA-256: `e8ec7e307d2bf626601e154340722fd7c909a94b96690ffa1c8acbbed736a787`
+  - SHA-256: `54bc16fcf967d3313ecbd05c22d279d6c0b75994c9e4fb037c864d5b5971604a`
 - `docs/examples/double_dqn_results.json` preserves the controlled comparison's
   compact ten-seed performance/mechanism summary and raw-result fingerprints.
   - SHA-256: `c9458ca93582d6423ab38e8acb2034fe712508ac9572b5a44baee2939532bd1b`
+- `docs/examples/double_dqn_budget_results.json` preserves the compact
+  ten-seed 2,000-versus-5,000 episode comparison.
+  - SHA-256: `2433445255cc9834b1121934367262323563fe01d33a41f029b71e150da50209`
 
 These files do not contain real student records. The episode is entirely
 simulated, and oracle mastery is included for explanatory evaluation only.

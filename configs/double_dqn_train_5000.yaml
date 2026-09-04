@@ -1,0 +1,5 @@
+# Training-budget intervention: only the number of Double DQN episodes changes.
+extends: double_dqn_train.yaml
+
+dqn:
+  train_episodes: 5000

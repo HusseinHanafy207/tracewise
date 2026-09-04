@@ -99,6 +99,23 @@
     },
     "conclusion": "Double DQN improves mean performance across ten matched seeds, but does not show a supported stability gain or reduced positive Q overestimation."
   },
+  "double_dqn_training_budget": {
+    "training_seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+    "heldout_episodes": 500,
+    "validation_selected": {
+      "episodes_2000_mean": 0.567589615811935,
+      "episodes_5000_mean": 0.5755913667017729,
+      "mean_difference": 0.008001750889837933,
+      "training_seed_bootstrap_95_ci": [0.0018148571192204254, 0.015688511293988773]
+    },
+    "exact_endpoint": {
+      "episodes_2000_mean": 0.555614974452894,
+      "episodes_5000_mean": 0.5414087634237177,
+      "mean_difference": -0.014206211029176064,
+      "training_seed_bootstrap_95_ci": [-0.022954802089711134, -0.002630490908007634]
+    },
+    "conclusion": "More experience improves the validation-selected checkpoint but degrades the exact episode-5000 networks; training-seed SD reductions are inconclusive."
+  },
   "demo": {
     "trace": "docs/examples/dqn_episode_seed200000.json",
     "animation": "docs/media/dqn_episode.gif",
@@ -111,6 +128,7 @@
     "docs/experiments_dqn.md",
     "docs/experiments_dqn_phase4.md",
     "docs/experiments_double_dqn.md",
+    "docs/experiments_double_dqn_budget.md",
     "docs/artifacts.md"
   ]
 }

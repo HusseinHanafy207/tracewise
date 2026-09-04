@@ -76,6 +76,25 @@ demonstrated reduction of positive Q overestimation. See
 [`experiments_double_dqn.md`](experiments_double_dqn.md) for the controlled
 protocol, diagnostics, and limitations.
 
+## Training-budget follow-up
+
+Ten matched Double DQN seeds compare 2,000 with 5,000 training episodes. The
+first 2,000 training and validation records match exactly within every seed,
+confirming that the candidate runs differ only by 3,000 additional episodes.
+
+Under the normal validation-selected protocol, mean final mastery improves
+from 0.5676 to **0.5756**: +0.0080 with 95% training-seed bootstrap interval
+[+0.0018, +0.0157]. Five seeds select a better checkpoint after episode 2,000;
+the other five retain the same checkpoint and tie.
+
+At the exact budget endpoints, the conclusion reverses. Episode-5,000 policies
+average 0.5414 versus 0.5556 at episode 2,000, a difference of **-0.0142**
+[-0.0230, -0.0026], with 8/10 seeds worsening. Both observed SDs fall at the
+larger budget, but both SD-difference intervals include zero. More experience
+therefore helps checkpoint search, not monotonic learning, and does not
+establish lower training variability. See
+[`experiments_double_dqn_budget.md`](experiments_double_dqn_budget.md).
+
 ## Reproduce or inspect
 
 ```powershell
@@ -83,6 +102,7 @@ python scripts/train_dqn.py --config configs/dqn_train.yaml --device cpu
 python scripts/eval_dqn_suite.py --config configs/dqn_evaluation.yaml --suite full --device cpu
 python scripts/eval_double_dqn.py --config configs/double_dqn_evaluation.yaml --device cpu
 python scripts/eval_q_overestimation.py --config configs/q_overestimation.yaml --device cpu --state-bank-mode on_policy
+python scripts/eval_double_dqn_budget.py --config configs/double_dqn_budget_evaluation.yaml --device cpu
 python scripts/demo_policy_episode.py --replay docs/examples/dqn_episode_seed200000.json
 ```
 
