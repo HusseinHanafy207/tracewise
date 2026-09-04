@@ -12,6 +12,7 @@ explicit diagnostic upper-bound mode.
 """
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 from typing import Callable, List, Optional, Protocol, Tuple, Union
 
@@ -196,6 +197,20 @@ class TutoringEnv:
             }
         )
         return observation, float(reward), self._terminated, False, info
+
+    def fork(self, response_seed: Optional[int] = None) -> "TutoringEnv":
+        """Clone the current episode state for counterfactual evaluation.
+
+        With no seed, the clone preserves the exact future RNG state. Supplying
+        `response_seed` keeps the student/history/current difficulty fixed but
+        samples an independent stochastic continuation. The source environment
+        is never mutated.
+        """
+        self._require_student()
+        clone = copy.deepcopy(self)
+        if response_seed is not None:
+            clone._episode_rng = np.random.RandomState(int(response_seed))
+        return clone
 
     def _decode_action(self, action: Union[int, np.integer, str]) -> Tuple[int, str]:
         if isinstance(action, str):

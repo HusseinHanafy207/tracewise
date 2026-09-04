@@ -58,17 +58,23 @@ evaluation metric.
 
 ## Double DQN follow-up
 
-Changing only the bootstrap target to Double DQN produces final mastery
-0.5686, 0.5686, and 0.5588 for training seeds 42, 43, and 44. The three-seed
-mean improves from 0.5550 to **0.5653**, while across-seed standard deviation
-falls from 0.0208 to **0.0057**.
+Changing only the bootstrap target, ten Double DQN agents average **0.5676**
+final mastery versus **0.5474** for ten matched vanilla agents. The mean paired
+training-seed difference is **+0.0202**, with 95% seed-bootstrap interval
+**[+0.0104, +0.0300]**, and Double DQN wins 8/10 seeds.
 
-This apparent stability gain is promising but based on only three trained
-agents. Double DQN beats matched vanilla DQN for seed 43, is effectively tied
-for seed 42, and loses for seed 44. The mean improvement is therefore driven by
-one seed rather than a consistent seed-by-seed advantage. See
+The original three-seed stability signal does not survive the larger sample.
+Across-seed standard deviations are 0.0147 for Double DQN and 0.0157 for
+vanilla; their difference is -0.0010 with interval [-0.0101, +0.0065].
+
+The mechanism diagnostic compares learned `max_a Q(s,a)` against 64 empirical
+Monte Carlo greedy-policy returns at 100 states per checkpoint. On on-policy
+states, vanilla bias is -2.50 and Double DQN bias is -5.14: both underestimate,
+and Double DQN's absolute error is higher by +2.38 [0.83, 4.05]. Thus this
+experiment supports a performance improvement, not improved stability or a
+demonstrated reduction of positive Q overestimation. See
 [`experiments_double_dqn.md`](experiments_double_dqn.md) for the controlled
-protocol and paired intervals.
+protocol, diagnostics, and limitations.
 
 ## Reproduce or inspect
 
@@ -76,6 +82,7 @@ protocol and paired intervals.
 python scripts/train_dqn.py --config configs/dqn_train.yaml --device cpu
 python scripts/eval_dqn_suite.py --config configs/dqn_evaluation.yaml --suite full --device cpu
 python scripts/eval_double_dqn.py --config configs/double_dqn_evaluation.yaml --device cpu
+python scripts/eval_q_overestimation.py --config configs/q_overestimation.yaml --device cpu --state-bank-mode on_policy
 python scripts/demo_policy_episode.py --replay docs/examples/dqn_episode_seed200000.json
 ```
 

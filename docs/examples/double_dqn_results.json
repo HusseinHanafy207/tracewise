@@ -1,53 +1,97 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "disclaimer": "Simulated oracle-state comparison only. No intervention policy was evaluated on real students.",
   "controlled_change": "Only dqn.double_dqn changes from false to true; all other configured training and evaluation settings match vanilla DQN.",
   "training_episodes_per_agent": 2000,
-  "training_seeds": [42, 43, 44],
+  "training_steps_per_agent": 100000,
+  "training_seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
   "heldout_episodes": 500,
   "heldout_seed_range": [200000, 200499],
   "vanilla_dqn": {
     "final_mastery_by_seed": {
       "42": 0.5699939255025326,
       "43": 0.5312730752058384,
-      "44": 0.5637236105084481
+      "44": 0.5637236105084481,
+      "45": 0.5311922046652202,
+      "46": 0.5566513999943988,
+      "47": 0.5323188161728956,
+      "48": 0.5396677536589283,
+      "49": 0.5634296011167849,
+      "50": 0.5316452873828734,
+      "51": 0.5540148118180447
     },
-    "mean_across_training_seeds": 0.5549968704056064,
-    "std_across_training_seeds": 0.02078323979897406,
-    "range_across_training_seeds": 0.03872085029669414
+    "mean_across_training_seeds": 0.5473910486025966,
+    "std_across_training_seeds": 0.015710747274337487,
+    "range_across_training_seeds": 0.03880172083731237
   },
   "double_dqn": {
     "final_mastery_by_seed": {
       "42": 0.5686014683464354,
       "43": 0.56855793159371,
-      "44": 0.5587912766295219
+      "44": 0.5587912766295219,
+      "45": 0.5714521161474061,
+      "46": 0.5934245581010823,
+      "47": 0.5657130698414091,
+      "48": 0.5604043195798606,
+      "49": 0.5846677673417032,
+      "50": 0.5386806875439037,
+      "51": 0.5656029629943178
     },
-    "mean_across_training_seeds": 0.5653168921898891,
-    "std_across_training_seeds": 0.005651390775153468,
-    "range_across_training_seeds": 0.009810191716913552
-  },
-  "double_minus_vanilla_by_seed": {
-    "42": {
-      "mean": -0.001392457156097159,
-      "paired_episode_bootstrap_95_ci": [-0.002885767302624566, 0.00018199491581199977]
-    },
-    "43": {
-      "mean": 0.03728485638787153,
-      "paired_episode_bootstrap_95_ci": [0.03133856843145086, 0.04349122570903832]
-    },
-    "44": {
-      "mean": -0.004932333878926135,
-      "paired_episode_bootstrap_95_ci": [-0.00678408272747738, -0.003223203320231037]
-    }
+    "mean_across_training_seeds": 0.567589615811935,
+    "std_across_training_seeds": 0.014712887377014785,
+    "range_across_training_seeds": 0.05474387055717855
   },
   "across_training_seed_comparison": {
-    "mean_difference": 0.010320021784282747,
-    "std_of_seed_level_differences": 0.023419210292031218,
-    "double_dqn_better_seed_count": 1,
-    "n_training_seeds": 3,
-    "conclusion": "Double DQN improved observed three-seed stability, but did not consistently outperform vanilla DQN seed by seed."
+    "mean_difference": 0.020198567209338526,
+    "mean_difference_training_seed_bootstrap_95_ci": [
+      0.01039112977537436,
+      0.030003353443350235
+    ],
+    "double_dqn_better_seed_count": 8,
+    "double_minus_vanilla_std": -0.0009978598973227025,
+    "std_difference_training_seed_bootstrap_95_ci": [
+      -0.010127074774423867,
+      0.0065468837898627185
+    ],
+    "conclusion": "Double DQN improves mean held-out performance, but the ten-seed data do not support a stability improvement."
   },
-  "raw_result_sha256": "4c532673987ec191fb7b71dd49e0af676f4fd76fe94dfb67d25e39ad72808c37",
-  "source_head_commit": "d1ad54bd482031581f013ccbc5d2c7b57314a5db",
+  "q_overestimation_diagnostic": {
+    "states_per_checkpoint": 100,
+    "monte_carlo_rollouts_per_state": 64,
+    "signed_bias_definition": "online max Q minus empirical scaled discounted greedy-policy return",
+    "shared_interleave_states": {
+      "vanilla_mean_signed_bias": -7.344499930878612,
+      "double_dqn_mean_signed_bias": -8.77908135676741,
+      "double_minus_vanilla_bias": -1.434581425888796,
+      "bias_difference_training_seed_bootstrap_95_ci": [
+        -3.439694374079411,
+        -0.06550540629865911
+      ],
+      "vanilla_mean_absolute_error": 7.628298821048352,
+      "double_dqn_mean_absolute_error": 9.00159432294386
+    },
+    "on_policy_states": {
+      "vanilla_mean_signed_bias": -2.4969760989562544,
+      "double_dqn_mean_signed_bias": -5.143600752366083,
+      "double_minus_vanilla_bias": -2.6466246534098286,
+      "bias_difference_training_seed_bootstrap_95_ci": [
+        -4.433897745155362,
+        -1.007820377178683
+      ],
+      "vanilla_mean_absolute_error": 3.0871653594229365,
+      "double_dqn_mean_absolute_error": 5.465375823692145,
+      "absolute_error_difference_training_seed_bootstrap_95_ci": [
+        0.8315356631384261,
+        4.046702540575832
+      ]
+    },
+    "conclusion": "Both algorithms underestimate empirical returns; Double DQN is more negative and less calibrated, so reduced positive overestimation does not explain its performance gain here."
+  },
+  "raw_result_sha256": {
+    "performance": "062f17f413f87f9ad297ead4f463598303137781b33602c121559827f36c6069",
+    "shared_state_q_diagnostic": "058a92f1856bd74368ed13e5d2d07d3039b59271ac644249d4d955386f9861f6",
+    "on_policy_q_diagnostic": "db7fa9da4d4398ff7adb5f896138388dacd2b7de06e99bc79625f58e15cb34b7"
+  },
+  "source_head_commit": "f0019bd41cb7013c8ca644e5a06bb32c18661ff4",
   "source_working_tree_dirty": true
 }

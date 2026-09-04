@@ -1,17 +1,18 @@
-# Double DQN: controlled three-seed comparison
+# Double DQN: ten-seed performance and mechanism study
 
-## Question
+## Questions
 
-Does Double DQN improve performance or training-seed stability over the
-project's vanilla DQN when every other training and evaluation choice is held
-fixed?
+1. Does Double DQN improve held-out policy performance or training-seed
+   stability over vanilla DQN when every other choice is fixed?
+2. If behavior changes, is it accompanied by the reduction in positive
+   `max_a Q(s,a)` bias that Double DQN was designed to address?
 
-**Scope:** all outcomes are from the oracle-state student simulator. No
-intervention policy was evaluated on real students.
+All outcomes are from the oracle-state student simulator. No intervention
+policy was evaluated on real students.
 
-## Controlled change
+## Controlled algorithm change
 
-Vanilla DQN selects and evaluates the bootstrap action with the target network:
+Vanilla DQN selects and evaluates its bootstrap action with the target network:
 
 `max_a Q_target(s', a)`
 
@@ -20,70 +21,117 @@ network:
 
 `Q_target(s', argmax_a Q_online(s', a))`
 
-The comparison changes only `dqn.double_dqn` from `false` to `true`. Both
-algorithms use the same:
+Only `dqn.double_dqn` changes. Network, optimizer, replay, target sync, epsilon
+schedule, reward scaling, `gamma=0.99`, simulator, and checkpoint selection are
+identical. This follows the separation introduced by [van Hasselt, Guez, and
+Silver (2015)](https://arxiv.org/abs/1509.06461).
 
-- `[128, 128]` network, optimizer, learning rate, replay buffer, and target-sync
-  interval;
-- epsilon schedule, reward scaling, `gamma=0.99`, and delayed-effect simulator;
-- 2,000 training episodes per agent and training seeds 42, 43, and 44;
+## Protocol
+
+- 10 matched training seeds: 42–51;
+- 2,000 episodes and exactly 100,000 environment steps per agent;
 - 100 fixed validation episodes for checkpoint selection;
-- 500 held-out episodes (`200000..200499`) shared by every checkpoint;
-- 5,000 deterministic bootstrap resamples for episode-level intervals.
+- 500 common held-out episodes (`200000..200499`) per checkpoint;
+- paired episode bootstrap within each fixed pair of agents;
+- paired training-seed bootstrap for algorithm-level mean and SD differences.
 
-Each generated history contains exactly 2,000 rows and ends at 100,000
-environment steps. The evaluator also verifies the `double_dqn` flag embedded
-in every checkpoint before running it.
+The evaluator verifies the algorithm flag embedded in every checkpoint. The
+training-seed bootstrap is the primary algorithm-level uncertainty estimate;
+the 500 episodes within one trained agent are not treated as independent model
+replications.
 
 ## Held-out performance
 
-| Training seed | Vanilla DQN | Double DQN | Double minus vanilla, paired 95% CI |
+| Seed | Vanilla | Double DQN | Double minus vanilla, paired episode 95% CI |
 |---:|---:|---:|---:|
 | 42 | 0.5700 | 0.5686 | -0.0014 [-0.0029, +0.0002] |
 | 43 | 0.5313 | 0.5686 | +0.0373 [+0.0313, +0.0435] |
 | 44 | 0.5637 | 0.5588 | -0.0049 [-0.0068, -0.0032] |
+| 45 | 0.5312 | 0.5715 | +0.0403 [+0.0350, +0.0461] |
+| 46 | 0.5567 | 0.5934 | +0.0368 [+0.0289, +0.0447] |
+| 47 | 0.5323 | 0.5657 | +0.0334 [+0.0275, +0.0394] |
+| 48 | 0.5397 | 0.5604 | +0.0207 [+0.0158, +0.0260] |
+| 49 | 0.5634 | 0.5847 | +0.0212 [+0.0171, +0.0254] |
+| 50 | 0.5316 | 0.5387 | +0.0070 [+0.0042, +0.0100] |
+| 51 | 0.5540 | 0.5656 | +0.0116 [+0.0081, +0.0151] |
 
-The interval in each row bootstraps paired differences over the same 500
-simulated episodes for that training seed. It measures episode variation for a
-fixed pair of trained agents; it does not measure uncertainty across training
-seeds.
+| Algorithm | Ten-seed mean | Across-seed SD | Range |
+|---|---:|---:|---:|
+| Vanilla DQN | 0.5474 | 0.0157 | 0.0388 |
+| Double DQN | **0.5676** | 0.0147 | 0.0547 |
 
-## Stability across trained agents
+Double DQN wins 8/10 matched seeds. Its mean seed-level gain is **+0.0202**,
+with 95% training-seed bootstrap interval **[+0.0104, +0.0300]**. This supports
+a performance advantage under the fixed simulator and training protocol.
 
-| Algorithm | Three-seed mean | Across-seed std | Across-seed range | Selected checkpoint episodes |
-|---|---:|---:|---:|---|
-| Vanilla DQN | 0.5550 | 0.0208 | 0.0387 | 1800, 2000, 1800 |
-| Double DQN | **0.5653** | **0.0057** | **0.0098** | 1300, 2000, 1600 |
+The initial three-seed SD reduction does not replicate. The SD difference is
+-0.0010 with training-seed bootstrap interval **[-0.0101, +0.0065]**; the
+Double DQN range is actually larger. There is no supported stability claim.
 
-Double DQN improves the observed mean by **+0.0103** and reduces the observed
-across-seed standard deviation by about **73%**. Its range is also roughly 75%
-smaller.
+## Q-overestimation diagnostic
 
-The result is promising for stability but not decisive for superiority. Double
-DQN is better for only one of the three matched training seeds: the mean gain
-mostly comes from fixing vanilla seed 43's weak run. Seed 42 is statistically
-indistinguishable at the episode level, while seed 44 favors vanilla. With only
-three training seeds, the variance estimate itself is uncertain.
+For 100 states per checkpoint (20 held-out episodes × steps 0, 10, 20, 30,
+and 40), the diagnostic records the learned online-network `max_a Q(s,a)`.
+From a fork of the exact simulator state, it then takes that greedy action and
+runs 64 independently seeded continuations under the checkpoint's greedy
+policy. Returns use the checkpoint's reward scale and `gamma`, so Q and Monte
+Carlo values share units. Signed bias is:
+
+`learned max Q - mean Monte Carlo discounted return`
+
+Positive values indicate overestimation and negative values underestimation.
+The original paper similarly compared learned action values with empirical
+discounted returns along evaluation trajectories.
+
+Two state distributions guard against an interpretation artifact:
+
+- **Shared interleaving bank:** every checkpoint sees identical latent states,
+  generated independently of either learned policy.
+- **On-policy bank:** each checkpoint supplies states reached by its own greedy
+  policy. Episode seeds and sampled steps match, but latent states are not
+  paired across algorithms. This is closer to the paper's evaluation approach.
+
+| State bank | Vanilla bias | Double bias | Double − vanilla bias, seed-bootstrap 95% CI | Vanilla MAE | Double MAE | Double − vanilla MAE, seed-bootstrap 95% CI |
+|---|---:|---:|---:|---:|---:|---:|
+| Shared interleaving | -7.34 | -8.78 | -1.43 [-3.44, -0.07] | 7.63 | 9.00 | +1.37 [+0.05, +3.30] |
+| On-policy | -2.50 | -5.14 | -2.65 [-4.43, -1.01] | 3.09 | 5.47 | +2.38 [+0.83, +4.05] |
+
+Both diagnostics show **underestimation**, not the positive maximization bias
+the proposed explanation requires. Double DQN is more negative and has larger
+absolute calibration error. The on-policy overestimation rate falls from 0.416
+to 0.214, but that occurs by shifting farther below the empirical return; it is
+not improved value calibration.
 
 ## Conclusion
 
-Under this simulator and training budget, Double DQN produced a substantially
-tighter cluster of final-mastery results without lowering the across-agent
-mean. It is therefore the more stable observed variant in this experiment.
-The defensible claim is **"Double DQN improved observed three-seed stability"**,
-not **"Double DQN always outperforms vanilla DQN."** More independent training
-seeds would be required for a strong algorithm-level performance claim.
+The expanded experiment supports this claim:
+
+> In this oracle-state tutoring simulator, Double DQN improves held-out final
+> mastery across 10 matched training seeds, but does not measurably improve
+> training-seed stability, and the improvement is not explained by reduced
+> positive Q overestimation in the Monte Carlo diagnostic.
+
+This is a useful negative mechanism result. Possible contributors include the
+short bounded horizon, checkpoint selection, target-network dynamics, and the
+simulator's reward/state structure. They are hypotheses, not findings. A
+descriptive correlation between bias and performance is not causal, so no
+`bias → stability → performance` chain is claimed.
 
 ## Reproduction
 
+Train missing seeds with the same commands, varying `--seed` from 42 through
+51 and using a matching `--tag`:
+
 ```powershell
-python scripts/train_dqn.py --config configs/double_dqn_train.yaml --observation-mode oracle --seed 42 --tag double_seed42 --device cpu
-python scripts/train_dqn.py --config configs/double_dqn_train.yaml --observation-mode oracle --seed 43 --tag double_seed43 --device cpu
-python scripts/train_dqn.py --config configs/double_dqn_train.yaml --observation-mode oracle --seed 44 --tag double_seed44 --device cpu
+python scripts/train_dqn.py --config configs/dqn_train.yaml --observation-mode oracle --seed 45 --tag seed45 --device cpu
+python scripts/train_dqn.py --config configs/double_dqn_train.yaml --observation-mode oracle --seed 45 --tag double_seed45 --device cpu
 python scripts/eval_double_dqn.py --config configs/double_dqn_evaluation.yaml --device cpu
+python scripts/eval_q_overestimation.py --config configs/q_overestimation.yaml --device cpu --state-bank-mode shared_interleave
+python scripts/eval_q_overestimation.py --config configs/q_overestimation.yaml --device cpu --state-bank-mode on_policy
 ```
 
-The raw result is written to `results/double_dqn_comparison.json`, and the plot
-to `results/figures/double_dqn_comparison.png`. These remain gitignored. A
-lightweight durable summary is committed as
+Raw outputs are written to `results/double_dqn_comparison.json`,
+`results/q_overestimation_diagnostic.json`, and
+`results/q_overestimation_diagnostic_on_policy.json`; plots are under
+`results/figures/`. These remain gitignored. The durable compact summary is
 [`examples/double_dqn_results.json`](examples/double_dqn_results.json).

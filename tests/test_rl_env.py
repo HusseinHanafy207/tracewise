@@ -68,6 +68,29 @@ def test_seed_and_action_sequence_reproduce_exact_trajectory():
     assert all(np.array_equal(a, b) for a, b in zip(first, second))
 
 
+def test_fork_preserves_state_without_mutating_source_and_can_resample_future():
+    config = TutoringEnvConfig(horizon=3, delayed_effects=True)
+    source = TutoringEnv(config)
+    initial, _ = source.reset(seed=101)
+
+    exact = source.fork()
+    exact_step = exact.step("harder_problem")
+    source_step = source.step("harder_problem")
+    assert np.array_equal(exact_step[0], source_step[0])
+    assert exact_step[1:] == source_step[1:]
+
+    untouched = TutoringEnv(config)
+    untouched_initial, _ = untouched.reset(seed=101)
+    first = untouched.fork(response_seed=9001).step("harder_problem")
+    second = untouched.fork(response_seed=9001).step("harder_problem")
+    third = untouched.fork(response_seed=9002).step("harder_problem")
+
+    assert np.array_equal(initial, untouched_initial)
+    assert np.array_equal(first[0], second[0])
+    assert first[1:] == second[1:]
+    assert not np.array_equal(first[0], third[0])
+
+
 def test_estimated_mode_uses_tracker_signal_not_true_mastery():
     env = TutoringEnv(
         TutoringEnvConfig(

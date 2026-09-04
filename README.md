@@ -29,7 +29,7 @@ to make the research demo interpretable.
 | Is delayed planning necessary? | With delayed effects: interleaving final mastery **0.558**, myopic 0.518, although myopic wins early reward | The simulator contains a real short- versus long-horizon tradeoff. |
 | Does DQN beat the strongest heuristic? | Canonical paired difference vs interleaving: **+0.0124** [0.0064, 0.0184] | One DQN wins, but this is not stable across training seeds. |
 | Is the DQN result robust? | Three-seed DQN mean **0.5550 +/- 0.0208**; interleaving 0.5576 | DQN is competitive, not reliably superior. |
-| Does Double DQN improve stability? | Three-seed mean/std: Double DQN **0.5653 / 0.0057**, vanilla 0.5550 / 0.0208 | Observed variance falls sharply, but the mean gain is driven by one seed. |
+| Does Double DQN help, and why? | Ten-seed mean: Double DQN **0.5676**, vanilla 0.5474; paired seed-bootstrap gain **+0.0202** [0.0104, 0.0300] | Performance improves in 8/10 seeds, but seed SD is similar and Q-bias diagnostics do not support reduced overestimation. |
 | What is the observability cost? | Oracle DQN 0.5700; BKT 0.5144; DKT 0.5151; no-state 0.5105 | Oracle state is valuable; current KT estimates add only a small gain over no state. |
 
 Machine-readable headline values are saved in
@@ -115,11 +115,19 @@ independent DQN training seeds, however, final mastery is 0.5700, 0.5313, and
 conclusion is that DQN learned a competitive sequential policy, not that it
 robustly won.
 
-With only the bootstrap target changed, three Double DQN agents reach 0.5686,
-0.5686, and 0.5588. Their mean rises to 0.5653 and their across-seed standard
-deviation falls from 0.0208 to 0.0057. Double DQN beats matched vanilla DQN for
-only one of three seeds, however, so this supports improved observed stability,
-not universal superiority. See the
+With only the bootstrap target changed, ten Double DQN agents average 0.5676
+final mastery versus 0.5474 for ten matched vanilla agents. Double DQN wins
+8/10 training seeds; the paired training-seed bootstrap estimates a +0.0202
+gain [0.0104, 0.0300]. The apparent three-seed stability advantage does not
+replicate: across-seed SD is 0.0147 versus 0.0157, with an inconclusive SD-
+difference interval [-0.0101, 0.0065].
+
+A Monte Carlo value diagnostic also rejects the simple proposed mechanism.
+On each checkpoint's greedy-policy states, both methods underestimate return:
+mean signed bias is -2.50 for vanilla and -5.14 for Double DQN. Double DQN's
+absolute calibration error is higher by +2.38 [0.83, 4.05] across training
+seeds. Performance improved here, but not through demonstrated reduction of
+positive Q overestimation. See the
 [`controlled Double DQN comparison`](docs/experiments_double_dqn.md).
 
 ## Run the project
@@ -133,7 +141,7 @@ py -3.10 -m pip install -r requirements-dev.txt
 py -3.10 -m pytest
 ```
 
-The 39 tests use synthetic fixtures and need neither the unversioned raw CSV nor
+The 44 tests use synthetic fixtures and need neither the unversioned raw CSV nor
 saved checkpoints.
 
 ### Replay the portfolio demo without training
@@ -184,11 +192,13 @@ py -3.10 scripts/train_dqn.py --config configs/dqn_train.yaml --device cpu
 py -3.10 scripts/eval_dqn_suite.py --config configs/dqn_evaluation.yaml --suite full --device cpu
 ```
 
-The three-seed Double DQN experiment uses
+The ten-seed Double DQN experiment uses
 `configs/double_dqn_train.yaml` and is evaluated with:
 
 ```powershell
 py -3.10 scripts/eval_double_dqn.py --config configs/double_dqn_evaluation.yaml --device cpu
+py -3.10 scripts/eval_q_overestimation.py --config configs/q_overestimation.yaml --device cpu --state-bank-mode shared_interleave
+py -3.10 scripts/eval_q_overestimation.py --config configs/q_overestimation.yaml --device cpu --state-bank-mode on_policy
 ```
 
 The full DQN suite expects the state/seed/discount checkpoints listed in
@@ -214,8 +224,11 @@ checkpoints and raw result traces remain gitignored.
   simulator, creating a deliberate but important domain mismatch.
 - The simulator focuses on one skill at a time and cannot exploit DKT's full
   cross-skill representation.
-- Three training seeds are enough to reveal instability and motivate Double
-  DQN, not enough to characterize either algorithm's full distribution.
+- Ten matched training seeds support the Double DQN performance comparison,
+  but remain a modest sample for variance and mechanism claims.
+- The value diagnostic uses finite Monte Carlo rollouts in a hand-designed,
+  short-horizon simulator and does not establish a causal path from Q bias to
+  policy performance.
 - The DQN is feed-forward in a POMDP; recurrent policies and richer
   multi-skill/prerequisite dynamics remain future work.
 - No LLM/RAG tutor, Arabic interface, or real-user study is claimed as complete.

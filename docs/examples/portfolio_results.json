@@ -83,15 +83,21 @@
   },
   "double_dqn_comparison": {
     "training_episodes_per_agent": 2000,
-    "training_seeds": [42, 43, 44],
+    "training_seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
     "heldout_episodes": 500,
-    "vanilla_mean": 0.5549968704056064,
-    "vanilla_training_seed_std": 0.02078323979897406,
-    "double_dqn_mean": 0.5653168921898891,
-    "double_dqn_training_seed_std": 0.005651390775153468,
-    "mean_difference": 0.010320021784282747,
-    "double_dqn_better_seed_count": 1,
-    "conclusion": "Double DQN improved observed three-seed stability, but did not consistently outperform vanilla DQN seed by seed."
+    "vanilla_mean": 0.5473910486025966,
+    "vanilla_training_seed_std": 0.015710747274337487,
+    "double_dqn_mean": 0.567589615811935,
+    "double_dqn_training_seed_std": 0.014712887377014785,
+    "mean_difference": 0.020198567209338526,
+    "mean_difference_training_seed_bootstrap_95_ci": [0.01039112977537436, 0.030003353443350235],
+    "double_dqn_better_seed_count": 8,
+    "on_policy_q_bias": {
+      "vanilla": -2.4969760989562544,
+      "double_dqn": -5.143600752366083,
+      "double_minus_vanilla_training_seed_bootstrap_95_ci": [-4.433897745155362, -1.007820377178683]
+    },
+    "conclusion": "Double DQN improves mean performance across ten matched seeds, but does not show a supported stability gain or reduced positive Q overestimation."
   },
   "demo": {
     "trace": "docs/examples/dqn_episode_seed200000.json",

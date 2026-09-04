@@ -1,0 +1,11 @@
+# Value-calibration diagnostic on a fixed subset of held-out simulator states.
+extends: double_dqn_evaluation.yaml
+
+q_overestimation:
+  state_episode_count: 20
+  state_steps: [0, 10, 20, 30, 40]
+  monte_carlo_rollouts: 64
+  bootstrap_resamples: 5000
+  rollout_seed_start: 700000
+  behavior_policy: "interleave_explain_harder"
+  continuation_policy: "checkpoint_greedy"

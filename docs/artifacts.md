@@ -95,7 +95,9 @@ numbers should not be merged into a single training history.
 - `results/kt_policy_basis.json`: `8bef1aa454073d418111fd3b684495e17e1876a4aa900ae5c3f366293a375505`
 - `results/delayed_effects_calibration.json`: `2d140a3f6f2d8bf3841223d10733543b13c6eb11556fd55c1a27323a6a60bca6`
 - `results/dqn_phase4_evaluation.json`: `83462590efb219338506476ab6cc8d7bf92f2c8315c371f6244baad3505b9cb0`
-- `results/double_dqn_comparison.json`: `4c532673987ec191fb7b71dd49e0af676f4fd76fe94dfb67d25e39ad72808c37`
+- `results/double_dqn_comparison.json`: `062f17f413f87f9ad297ead4f463598303137781b33602c121559827f36c6069`
+- `results/q_overestimation_diagnostic.json` (shared state bank): `058a92f1856bd74368ed13e5d2d07d3039b59271ac644249d4d955386f9861f6`
+- `results/q_overestimation_diagnostic_on_policy.json`: `db7fa9da4d4398ff7adb5f896138388dacd2b7de06e99bc79625f58e15cb34b7`
 
 ## Portfolio example artifacts
 
@@ -111,10 +113,10 @@ fresh clone without downloading a checkpoint or retraining:
   - SHA-256: `badb2cec68718fb9fe4756a9bdeb5abd529c1e2605b567b7a517d88ec6ba2b78`
 - `docs/examples/portfolio_results.json` is a lightweight, machine-readable
   copy of the headline metrics already documented in the experiment reports.
-  - SHA-256: `1fef9635de474f931a0f2ea5897d0df0b5ff72f92493c12beba2ac9914b9935f`
+  - SHA-256: `e8ec7e307d2bf626601e154340722fd7c909a94b96690ffa1c8acbbed736a787`
 - `docs/examples/double_dqn_results.json` preserves the controlled comparison's
-  compact three-seed summary and raw-result fingerprint.
-  - SHA-256: `37fbe097dafe6d2429a3430d6a692202e87856bfc12ac781bb7e34096893a3a8`
+  compact ten-seed performance/mechanism summary and raw-result fingerprints.
+  - SHA-256: `c9458ca93582d6423ab38e8acb2034fe712508ac9572b5a44baee2939532bd1b`
 
 These files do not contain real student records. The episode is entirely
 simulated, and oracle mastery is included for explanatory evaluation only.

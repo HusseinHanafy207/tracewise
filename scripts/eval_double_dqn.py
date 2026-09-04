@@ -79,6 +79,68 @@ def summarize_stability(rows: List[dict], algorithm: str) -> dict:
     }
 
 
+def compare_across_training_seeds(
+    rows: List[dict],
+    bootstrap_resamples: int,
+    bootstrap_seed: int,
+) -> dict:
+    by_key = {
+        (row["algorithm"], int(row["training_seed"])): float(row["final_mastery"])
+        for row in rows
+    }
+    vanilla_seeds = sorted(seed for algorithm, seed in by_key if algorithm == "dqn")
+    double_seeds = sorted(
+        seed for algorithm, seed in by_key if algorithm == "double_dqn"
+    )
+    if vanilla_seeds != double_seeds or len(vanilla_seeds) < 2:
+        raise ValueError("Algorithms require at least two identical training seeds")
+    vanilla = np.asarray(
+        [by_key[("dqn", seed)] for seed in vanilla_seeds], dtype=np.float64
+    )
+    double = np.asarray(
+        [by_key[("double_dqn", seed)] for seed in vanilla_seeds],
+        dtype=np.float64,
+    )
+    differences = double - vanilla
+    rng = np.random.RandomState(bootstrap_seed)
+    indices = rng.randint(
+        0,
+        len(vanilla_seeds),
+        size=(bootstrap_resamples, len(vanilla_seeds)),
+    )
+    mean_differences = differences[indices].mean(axis=1)
+    std_differences = (
+        double[indices].std(axis=1, ddof=1)
+        - vanilla[indices].std(axis=1, ddof=1)
+    )
+    return {
+        "replication_unit": "training_seed",
+        "training_seeds": vanilla_seeds,
+        "n_training_seeds": len(vanilla_seeds),
+        "mean_of_seed_level_differences": float(differences.mean()),
+        "mean_difference_ci95_training_seed_bootstrap": [
+            float(np.quantile(mean_differences, 0.025)),
+            float(np.quantile(mean_differences, 0.975)),
+        ],
+        "std_of_seed_level_differences": float(differences.std(ddof=1)),
+        "median_seed_level_difference": float(np.median(differences)),
+        "double_dqn_better_seed_count": int(np.sum(differences > 0.0)),
+        "double_dqn_tied_seed_count": int(np.sum(differences == 0.0)),
+        "double_minus_vanilla_std": float(double.std(ddof=1) - vanilla.std(ddof=1)),
+        "std_difference_ci95_training_seed_bootstrap": [
+            float(np.quantile(std_differences, 0.025)),
+            float(np.quantile(std_differences, 0.975)),
+        ],
+        "std_ratio_double_over_vanilla": float(
+            double.std(ddof=1) / vanilla.std(ddof=1)
+        ),
+        "note": (
+            "Paired bootstrap resamples training seeds, not the 500 episodes "
+            "within a fixed trained agent."
+        ),
+    }
+
+
 def plot_comparison(
     rows: List[dict],
     paired: List[dict],
@@ -197,28 +259,14 @@ def main(config_path: str, device_name: str, tag: str) -> None:
         )
         for index, seed in enumerate(training_seeds)
     ]
-    per_seed_differences = np.asarray(
-        [row["mean_difference"] for row in paired], dtype=np.float64
-    )
     stability = {
         "dqn": summarize_stability(rows, "dqn"),
         "double_dqn": summarize_stability(rows, "double_dqn"),
-        "double_minus_vanilla_across_training_seeds": {
-            "mean_of_seed_level_differences": float(per_seed_differences.mean()),
-            "std_of_seed_level_differences": float(
-                per_seed_differences.std(ddof=1)
-                if len(per_seed_differences) > 1
-                else 0.0
-            ),
-            "double_dqn_better_seed_count": int(
-                np.sum(per_seed_differences > 0.0)
-            ),
-            "n_training_seeds": len(training_seeds),
-            "note": (
-                "Descriptive across three training seeds; episode-bootstrap "
-                "intervals are reported separately per seed."
-            ),
-        },
+        "double_minus_vanilla_across_training_seeds": compare_across_training_seeds(
+            rows,
+            bootstrap_resamples,
+            bootstrap_seed + 3_000,
+        ),
     }
 
     print("\nseed   vanilla    double     paired difference [95% CI]")
@@ -237,6 +285,16 @@ def main(config_path: str, device_name: str, tag: str) -> None:
             f"{summary['mean_final_mastery_across_agents']:.4f} | std="
             f"{summary['std_final_mastery_across_agents']:.4f}"
         )
+    across = stability["double_minus_vanilla_across_training_seeds"]
+    low, high = across["mean_difference_ci95_training_seed_bootstrap"]
+    std_low, std_high = across["std_difference_ci95_training_seed_bootstrap"]
+    print(
+        "training-seed bootstrap: mean difference="
+        f"{across['mean_of_seed_level_differences']:+.4f} "
+        f"CI [{low:+.4f}, {high:+.4f}] | std difference="
+        f"{across['double_minus_vanilla_std']:+.4f} "
+        f"CI [{std_low:+.4f}, {std_high:+.4f}]"
+    )
 
     suffix = f"_{tag}" if tag else ""
     result_path = results_dir / f"double_dqn_comparison{suffix}.json"
