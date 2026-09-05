@@ -1,0 +1,9 @@
+# GRU Double DQN at the selected 5,000-episode training budget.
+extends: double_dqn_train_5000.yaml
+
+recurrent_dqn:
+  recurrent_hidden_dim: 64
+  head_hidden_dims: [64]
+  episode_batch_size: 3
+  replay_capacity_episodes: 2000
+  min_replay_episodes: 40

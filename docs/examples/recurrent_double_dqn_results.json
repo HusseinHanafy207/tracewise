@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "disclaimer": "Oracle-state simulator comparison only. No intervention policy was evaluated on real students.",
+  "research_question": "Does a longer remembered interaction history help Double DQN handle hidden independence/fatigue and improve final mastery?",
+  "protocol": {
+    "training_episodes_per_agent": 5000,
+    "training_seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+    "heldout_episodes": 500,
+    "heldout_seed_range": [200000, 200499],
+    "optimizer_updates_per_agent": 62000,
+    "feedforward_parameters": 19206,
+    "gru_parameters": 19910,
+    "gru_parameter_ratio": 1.036655211912944,
+    "feedforward_replay_batch_transitions": 128,
+    "gru_replay_batch_episodes": 3,
+    "gru_replay_loss_transitions": 150
+  },
+  "validation_selected": {
+    "feedforward_mean": 0.5755913667017729,
+    "feedforward_training_seed_std": 0.008746860529078892,
+    "gru_mean": 0.8373582298450455,
+    "gru_training_seed_std": 0.006822408713446877,
+    "gru_minus_feedforward_mean": 0.26176686314327247,
+    "training_seed_bootstrap_95_ci": [0.2554685654309346, 0.26906153205212097],
+    "gru_better_seed_count": 10,
+    "gru_minus_feedforward_std": -0.0019244518156320148,
+    "std_difference_training_seed_bootstrap_95_ci": [-0.006146066261112663, 0.003008828445973658]
+  },
+  "exact_endpoint": {
+    "feedforward_mean": 0.5414087634237177,
+    "feedforward_training_seed_std": 0.01215930159829322,
+    "gru_mean": 0.821237726649666,
+    "gru_training_seed_std": 0.010645070294082619,
+    "gru_minus_feedforward_mean": 0.2798289632259481,
+    "training_seed_bootstrap_95_ci": [0.2683655850548104, 0.29067210628005086],
+    "gru_better_seed_count": 10,
+    "gru_minus_feedforward_std": -0.0015142313042106007,
+    "std_difference_training_seed_bootstrap_95_ci": [-0.007998638112197667, 0.004630705517434981]
+  },
+  "descriptive_behavior_validation_selected": {
+    "feedforward_harder_problem_frequency": 0.3739,
+    "gru_harder_problem_frequency": 0.6243,
+    "feedforward_prerequisite_review_frequency": 0.304,
+    "gru_prerequisite_review_frequency": 0.0979,
+    "feedforward_final_independence": 0.4065,
+    "gru_final_independence": 0.802
+  },
+  "raw_result_sha256": "ce1aef8675ddddc8650962ce2004f302ae00f49b3c0ea18944faaf587b4cc0e4",
+  "matched_replay_follow_up": {
+    "report": "docs/experiments_memory_ablation.md",
+    "feedforward_validation_selected_mean": 0.5741913987295473,
+    "gru_validation_selected_mean": 0.8373582298450455,
+    "gru_minus_feedforward_mean": 0.26316683111549816,
+    "training_seed_bootstrap_95_ci": [0.25772880925895447, 0.2694502547323087],
+    "raw_result_sha256": "9643e4bfbec23352dfee0b1bebf0039f0821acc43b31474d0e2a5a9a05490c54"
+  },
+  "conclusion": "GRU Double DQN substantially improves final mastery in all ten matched seeds and both checkpoint estimands; a follow-up with complete-episode replay and training exposure matched provides strong evidence that access to history drives the gain."
+}

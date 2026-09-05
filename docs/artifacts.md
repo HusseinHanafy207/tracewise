@@ -99,6 +99,9 @@ numbers should not be merged into a single training history.
 - `results/q_overestimation_diagnostic.json` (shared state bank): `058a92f1856bd74368ed13e5d2d07d3039b59271ac644249d4d955386f9861f6`
 - `results/q_overestimation_diagnostic_on_policy.json`: `db7fa9da4d4398ff7adb5f896138388dacd2b7de06e99bc79625f58e15cb34b7`
 - `results/double_dqn_budget_comparison.json`: `9b481df3e3db33643972a0c3c04f604e1798d06b4fb3e1b5b5ce51ea7af8ec29`
+- `results/recurrent_double_dqn_comparison.json`: `ce1aef8675ddddc8650962ce2004f302ae00f49b3c0ea18944faaf587b4cc0e4`
+- `results/memory_ablation_comparison.json`: `9643e4bfbec23352dfee0b1bebf0039f0821acc43b31474d0e2a5a9a05490c54`
+- `results/multiskill_environment_validation.json`: `da53311f2c4bc17e61931f60559a2e2c4636fee55a713e7c5955e30ba290aae0`
 
 ## Portfolio example artifacts
 
@@ -114,13 +117,22 @@ fresh clone without downloading a checkpoint or retraining:
   - SHA-256: `badb2cec68718fb9fe4756a9bdeb5abd529c1e2605b567b7a517d88ec6ba2b78`
 - `docs/examples/portfolio_results.json` is a lightweight, machine-readable
   copy of the headline metrics already documented in the experiment reports.
-  - SHA-256: `54bc16fcf967d3313ecbd05c22d279d6c0b75994c9e4fb037c864d5b5971604a`
+  - SHA-256: `fb52154aeea4f0f337b54ce98fca16009bce1653ba60fb8508352211f6d8149c`
 - `docs/examples/double_dqn_results.json` preserves the controlled comparison's
   compact ten-seed performance/mechanism summary and raw-result fingerprints.
   - SHA-256: `c9458ca93582d6423ab38e8acb2034fe712508ac9572b5a44baee2939532bd1b`
 - `docs/examples/double_dqn_budget_results.json` preserves the compact
   ten-seed 2,000-versus-5,000 episode comparison.
   - SHA-256: `2433445255cc9834b1121934367262323563fe01d33a41f029b71e150da50209`
+- `docs/examples/recurrent_double_dqn_results.json` preserves the compact
+  ten-seed feed-forward-versus-GRU comparison and replay limitation.
+  - SHA-256: `6b5a8264183578268a68ceb926e9889e4b60fc1a8064310dff51047a4a9cfddd`
+- `docs/examples/memory_ablation_results.json` preserves the replay-matched
+  ten-seed MLP-versus-GRU memory ablation.
+  - SHA-256: `d107e476a3dd005000ea973982db08ef43cc6542a2aa832e6f9f119067f28504`
+- `docs/examples/multiskill_environment_results.json` preserves the compact
+  four-skill prerequisite calibration and validation checks.
+  - SHA-256: `3c6a9e0e0b9db5a78d4a4123986f118b3b4f9dc1700e3aaddd5e7caa5ef35fe7`
 
 These files do not contain real student records. The episode is entirely
 simulated, and oracle mastery is included for explanatory evaluation only.

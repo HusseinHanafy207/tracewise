@@ -116,6 +116,62 @@
     },
     "conclusion": "More experience improves the validation-selected checkpoint but degrades the exact episode-5000 networks; training-seed SD reductions are inconclusive."
   },
+  "recurrent_double_dqn_comparison": {
+    "training_episodes_per_agent": 5000,
+    "training_seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+    "heldout_episodes": 500,
+    "feedforward_parameters": 19206,
+    "gru_parameters": 19910,
+    "validation_selected": {
+      "feedforward_mean": 0.5755913667017729,
+      "gru_mean": 0.8373582298450455,
+      "mean_difference": 0.26176686314327247,
+      "training_seed_bootstrap_95_ci": [0.2554685654309346, 0.26906153205212097],
+      "gru_better_seed_count": 10
+    },
+    "exact_endpoint": {
+      "feedforward_mean": 0.5414087634237177,
+      "gru_mean": 0.821237726649666,
+      "mean_difference": 0.2798289632259481,
+      "training_seed_bootstrap_95_ci": [0.2683655850548104, 0.29067210628005086],
+      "gru_better_seed_count": 10
+    },
+    "conclusion": "The recurrent training system substantially improves simulated final mastery; the matched-replay follow-up isolates replay and training exposure as explanations. Lower seed variability is not established."
+  },
+  "memory_ablation": {
+    "training_episodes_per_agent": 5000,
+    "training_seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+    "heldout_episodes": 500,
+    "matched_transitions_per_loss": 150,
+    "matched_optimizer_updates": 62000,
+    "validation_selected": {
+      "feedforward_episode_replay_mean": 0.5741913987295473,
+      "gru_episode_replay_mean": 0.8373582298450455,
+      "mean_difference": 0.26316683111549816,
+      "training_seed_bootstrap_95_ci": [0.25772880925895447, 0.2694502547323087],
+      "gru_better_seed_count": 10
+    },
+    "exact_endpoint": {
+      "feedforward_episode_replay_mean": 0.5525091944432742,
+      "gru_episode_replay_mean": 0.821237726649666,
+      "mean_difference": 0.2687285322063916,
+      "training_seed_bootstrap_95_ci": [0.2563206280042698, 0.2805482824132211],
+      "gru_better_seed_count": 10
+    },
+    "conclusion": "Matching complete-episode replay, loss-batch size, update timing, and update count leaves the feed-forward agent near 0.57, providing strong evidence that access to history drives the GRU gain."
+  },
+  "multiskill_prerequisite_simulator": {
+    "skills": 4,
+    "prerequisites": [[], [0], [0], [1, 2]],
+    "evaluation_episodes": 500,
+    "current_skill_only_final_mean_mastery": 0.32632646992169556,
+    "prerequisite_aware_final_mean_mastery": 0.3455295980723197,
+    "paired_difference": 0.0192031281506241,
+    "episode_bootstrap_95_ci": [0.0187761902363644, 0.019625182403155327],
+    "current_skill_only_readiness": 0.5465597821194574,
+    "prerequisite_aware_readiness": 0.6039835951294742,
+    "conclusion": "Separate per-skill mastery and prerequisite gating create a measurable planning consequence; learned recurrent and BKT/DKT policy comparisons remain future work."
+  },
   "demo": {
     "trace": "docs/examples/dqn_episode_seed200000.json",
     "animation": "docs/media/dqn_episode.gif",
@@ -129,6 +185,9 @@
     "docs/experiments_dqn_phase4.md",
     "docs/experiments_double_dqn.md",
     "docs/experiments_double_dqn_budget.md",
+    "docs/experiments_recurrent_double_dqn.md",
+    "docs/experiments_memory_ablation.md",
+    "docs/experiments_multiskill_simulator.md",
     "docs/artifacts.md"
   ]
 }

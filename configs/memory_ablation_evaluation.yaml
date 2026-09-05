@@ -1,0 +1,15 @@
+# Isolate recurrent memory by matching complete-episode replay and update counts.
+extends: recurrent_double_dqn_evaluation.yaml
+
+episode_replay_dqn:
+  episode_batch_size: 3
+  replay_capacity_episodes: 2000
+  min_replay_episodes: 40
+
+memory_ablation_evaluation:
+  training_seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+  checkpoint_kinds: [best, final]
+  feedforward_tag_template: "episode_replay_seed{seed}"
+  gru_tag_template: "gru_seed{seed}"
+  evaluation_episodes: 500
+  bootstrap_resamples: 5000

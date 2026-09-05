@@ -1,0 +1,7 @@
+# Feed-forward memory ablation using the GRU's complete-episode replay scheme.
+extends: double_dqn_train_5000.yaml
+
+episode_replay_dqn:
+  episode_batch_size: 3
+  replay_capacity_episodes: 2000
+  min_replay_episodes: 40

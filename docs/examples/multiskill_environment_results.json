@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "disclaimer": "Hand-designed multi-skill simulator validation only. No real students or classroom outcomes are represented.",
+  "environment": {
+    "num_skills": 4,
+    "skill_names": ["foundations", "representation_a", "representation_b", "synthesis"],
+    "prerequisites": [[], [0], [0], [1, 2]],
+    "focus_skill_sequence": [0, 1, 0, 2, 1, 2, 3, 3],
+    "horizon": 60,
+    "reward": "change in mean mastery across skills",
+    "prerequisite_gate_floor": 0.35,
+    "prerequisite_review_transfer": 0.25,
+    "prerequisite_spillover": 0.12
+  },
+  "evaluation": {
+    "episodes": 500,
+    "seed_range": [300000, 300499],
+    "random": {
+      "final_mean_mastery": 0.32648765486373404,
+      "mean_prerequisite_readiness": 0.5572243470765684,
+      "overall_accuracy": 0.35729999999999995
+    },
+    "current_skill_only": {
+      "final_mean_mastery": 0.32632646992169556,
+      "mean_prerequisite_readiness": 0.5465597821194574,
+      "overall_accuracy": 0.34673333333333334
+    },
+    "prerequisite_aware": {
+      "final_mean_mastery": 0.3455295980723197,
+      "mean_prerequisite_readiness": 0.6039835951294742,
+      "overall_accuracy": 0.4328666666666667,
+      "final_mastery_by_skill": [0.5166029818395176, 0.3149111179131942, 0.31667115076387914, 0.23393314177268898],
+      "prerequisite_review_frequency": 0.7089666666666666
+    },
+    "prerequisite_aware_minus_current_only": {
+      "final_mean_mastery_difference": 0.0192031281506241,
+      "episode_bootstrap_95_ci": [0.0187761902363644, 0.019625182403155327],
+      "win_rate": 1.0
+    }
+  },
+  "validation_checks": {
+    "separate_mastery_per_skill": true,
+    "acyclic_prerequisite_graph": true,
+    "current_and_prerequisite_transfer": true,
+    "reward_telescopes_mean_mastery_gain": true,
+    "estimated_tracker_uses_actual_target_skill": true,
+    "seeded_trajectories_and_forks_are_reproducible": true
+  },
+  "raw_result_sha256": "da53311f2c4bc17e61931f60559a2e2c4636fee55a713e7c5955e30ba290aae0",
+  "conclusion": "Prerequisite-aware behavior improves mean final mastery and readiness, while its heavy review bias leaves a nontrivial preparation-versus-direct-practice problem for learned policies."
+}

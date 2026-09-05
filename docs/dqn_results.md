@@ -95,6 +95,45 @@ therefore helps checkpoint search, not monotonic learning, and does not
 establish lower training variability. See
 [`experiments_double_dqn_budget.md`](experiments_double_dqn_budget.md).
 
+## Recurrent Double DQN follow-up
+
+Ten matched 5,000-episode seeds compare the feed-forward Double DQN with a
+64-unit GRU followed by a 64-unit head. The networks are nearly parameter
+matched (19,206 versus 19,910 parameters), and simulator, reward, action space,
+training seeds, optimizer schedule, validation seeds, and held-out seeds are
+fixed.
+
+Validation-selected GRU agents average **0.8374** final mastery versus 0.5756
+for feed-forward agents. The paired training-seed difference is **+0.2618**
+with 95% bootstrap interval **[+0.2555, +0.2691]**, and the GRU wins all 10
+seeds. Exact episode-5,000 endpoints strengthen the conclusion: 0.8212 versus
+0.5414, or **+0.2798 [+0.2684, +0.2907]**, again with 10/10 wins.
+
+Observed GRU seed SD is slightly lower in both comparisons, but both SD-
+difference intervals include zero. Lower training variability is not
+established. Complete-episode GRU replay also uses 150 correlated transitions
+per loss rather than 128 independent transitions, so this experiment supports
+the recurrent training system, not a fully isolated causal effect of memory.
+See
+[`experiments_recurrent_double_dqn.md`](experiments_recurrent_double_dqn.md).
+
+## Matched-replay memory ablation
+
+The original MLP was then retrained with the GRU's complete-episode replay:
+three 50-step episodes per loss, 150 transitions, episode-boundary updates,
+and 62,000 total updates. All other training and evaluation settings remain
+matched across ten seeds.
+
+The feed-forward selected mean stays at **0.5742**, versus **0.8374** for the
+GRU. The paired seed gain is **+0.2632 [+0.2577, +0.2695]**, with GRU wins in
+10/10 seeds. Exact endpoints give **+0.2687 [+0.2563, +0.2805]**, also 10/10.
+Replay and training exposure therefore do not explain the large gain. This is
+strong evidence that access to interaction history matters in the POMDP.
+
+A timestep-reset GRU remains the strictest optional ablation because it would
+hold the recurrent architecture itself fixed. See
+[`experiments_memory_ablation.md`](experiments_memory_ablation.md).
+
 ## Reproduce or inspect
 
 ```powershell
@@ -103,6 +142,8 @@ python scripts/eval_dqn_suite.py --config configs/dqn_evaluation.yaml --suite fu
 python scripts/eval_double_dqn.py --config configs/double_dqn_evaluation.yaml --device cpu
 python scripts/eval_q_overestimation.py --config configs/q_overestimation.yaml --device cpu --state-bank-mode on_policy
 python scripts/eval_double_dqn_budget.py --config configs/double_dqn_budget_evaluation.yaml --device cpu
+python scripts/eval_recurrent_double_dqn.py --config configs/recurrent_double_dqn_evaluation.yaml --device cpu
+python scripts/eval_memory_ablation.py --config configs/memory_ablation_evaluation.yaml --device cpu
 python scripts/demo_policy_episode.py --replay docs/examples/dqn_episode_seed200000.json
 ```
 

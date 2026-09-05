@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "disclaimer": "Oracle-state simulator memory ablation only. No intervention policy was evaluated on real students.",
+  "research_question": "Does GRU history improve final mastery when complete-episode replay, loss-batch size, update count, and training protocol are matched?",
+  "protocol": {
+    "training_episodes_per_agent": 5000,
+    "training_seeds": [42, 43, 44, 45, 46, 47, 48, 49, 50, 51],
+    "heldout_episodes": 500,
+    "heldout_seed_range": [200000, 200499],
+    "environment_steps_per_agent": 250000,
+    "optimizer_updates_per_agent": 62000,
+    "episodes_per_loss": 3,
+    "transitions_per_loss": 150,
+    "replay_capacity_episodes": 2000,
+    "updates_deferred_to_episode_boundary": true,
+    "feedforward_parameters": 19206,
+    "gru_parameters": 19910
+  },
+  "validation_selected": {
+    "feedforward_mean": 0.5741913987295473,
+    "feedforward_training_seed_std": 0.005298142811398938,
+    "gru_mean": 0.8373582298450455,
+    "gru_training_seed_std": 0.006822408713446877,
+    "gru_minus_feedforward_mean": 0.26316683111549816,
+    "training_seed_bootstrap_95_ci": [0.25772880925895447, 0.2694502547323087],
+    "gru_better_seed_count": 10,
+    "gru_minus_feedforward_std": 0.0015242659020479393,
+    "std_difference_training_seed_bootstrap_95_ci": [-0.0021389825096234925, 0.00588069463658376]
+  },
+  "exact_endpoint": {
+    "feedforward_mean": 0.5525091944432742,
+    "feedforward_training_seed_std": 0.013295257612196942,
+    "gru_mean": 0.821237726649666,
+    "gru_training_seed_std": 0.010645070294082619,
+    "gru_minus_feedforward_mean": 0.2687285322063916,
+    "training_seed_bootstrap_95_ci": [0.2563206280042698, 0.2805482824132211],
+    "gru_better_seed_count": 10,
+    "gru_minus_feedforward_std": -0.002650187318114323,
+    "std_difference_training_seed_bootstrap_95_ci": [-0.009149176699530056, 0.004562715224444583]
+  },
+  "original_feedforward_context": {
+    "validation_selected_mean": 0.5755913667017729,
+    "exact_endpoint_mean": 0.5414087634237177,
+    "note": "Context only; the primary paired comparison is matched episode-replay feed-forward versus GRU."
+  },
+  "raw_result_sha256": "9643e4bfbec23352dfee0b1bebf0039f0821acc43b31474d0e2a5a9a05490c54",
+  "conclusion": "Matching complete-episode replay and training exposure leaves the feed-forward agent near 0.57 while the GRU remains near 0.84, providing strong evidence that access to interaction history drives the gain."
+}

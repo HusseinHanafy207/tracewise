@@ -1,0 +1,10 @@
+# Matched feed-forward versus GRU Double DQN evaluation.
+extends: recurrent_double_dqn_train.yaml
+
+recurrent_double_dqn_evaluation:
+  training_seeds: [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
+  checkpoint_kinds: [best, final]
+  feedforward_tag_template: "double_budget5000_seed{seed}"
+  recurrent_tag_template: "gru_seed{seed}"
+  evaluation_episodes: 500
+  bootstrap_resamples: 5000

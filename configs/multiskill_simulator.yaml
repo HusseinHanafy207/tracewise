@@ -1,0 +1,23 @@
+# Four-skill diamond curriculum used to validate prerequisite dynamics.
+extends: config.yaml
+
+multiskill:
+  skill_names: [foundations, representation_a, representation_b, synthesis]
+  horizon: 60
+  num_skills: 4
+  prerequisites:
+    - []
+    - [0]
+    - [0]
+    - [1, 2]
+  focus_skill_sequence: [0, 1, 0, 2, 1, 2, 3, 3]
+  observation_mode: oracle
+  delayed_effects: true
+  heterogeneous: false
+  vary_difficulty: true
+  prerequisite_gate_floor: 0.35
+  prerequisite_review_transfer: 0.25
+  prerequisite_spillover: 0.12
+  validation_episodes: 500
+  validation_seed_start: 300000
+  bootstrap_resamples: 5000
